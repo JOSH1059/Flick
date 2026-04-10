@@ -15,14 +15,12 @@
 			</dict>
 		</dict>
 	</dict>
+	<!-- Sparkle auto-update disabled — was pointing to upstream talkvalue repo -->
+	<!-- To re-enable: set SUFeedURL to your own appcast and generate a new SUPublicEDKey -->
 	<key>SUEnableDownloaderService</key>
-	<true/>
+	<false/>
 	<key>SUEnableInstallerLauncherService</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://talkvalue.github.io/buddi/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>B1Y47t8C/v8ImurYA+9arEsuCrpxwJSviekiflMElbI=</string>
+	<false/>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict/>

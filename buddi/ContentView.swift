@@ -18,6 +18,7 @@ struct ContentView: View {
     @ObservedObject var webcamManager = WebcamManager.shared
 
     @ObservedObject var coordinator = BuddiViewCoordinator.shared
+    @ObservedObject var sessionMonitor = BuddiSessionBridge.shared.sessionMonitor
     @ObservedObject var musicManager = MusicManager.shared
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var brightnessManager = BrightnessManager.shared
@@ -668,7 +669,7 @@ extension ContentView {
         let notchContentHeight = max(0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12))
         let sideWidth = max(0, vm.effectiveClosedNotchHeight - 12) + 10
         let centerWidth = vm.closedNotchSize.width + (isHovering ? 8 : 0)
-        let sessions = BuddiSessionBridge.shared.sessionMonitor.instances
+        let sessions = sessionMonitor.instances
         let isProcessing = sessions.contains { $0.phase.isActive }
         let hasPending = sessions.contains { $0.phase.isWaitingForApproval }
         let hasWaiting = sessions.contains { $0.phase == .waitingForInput }
@@ -704,7 +705,7 @@ extension ContentView {
     }
 
     private var hasActiveClaudeSession: Bool {
-        BuddiSessionBridge.shared.sessionMonitor.instances.contains { $0.phase.isActive || $0.phase.needsAttention }
+        sessionMonitor.instances.contains { $0.phase.isActive || $0.phase.needsAttention }
     }
 }
 

@@ -7,6 +7,8 @@ enum BuddyTask: String, CaseIterable {
     case waiting
     case error
     case success
+    case happy
+    case petting
 
     var faceSuffix: String {
         switch self {
@@ -18,6 +20,8 @@ enum BuddyTask: String, CaseIterable {
         case .waiting: "?"
         case .error: "!"
         case .success: "✓"
+        case .happy: " ♥"
+        case .petting: " ♥♥♥"
         }
     }
 }

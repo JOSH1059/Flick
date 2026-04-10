@@ -13,7 +13,7 @@ import os
 private let kSystemDefinedEventType = CGEventType(rawValue: 14)!
 
 final class MediaKeyInterceptor {
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "MediaKeys")
+    private static let logger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "MediaKeys")
     static let shared = MediaKeyInterceptor()
     
     private enum NXKeyType: Int {

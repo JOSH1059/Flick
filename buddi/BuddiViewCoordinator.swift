@@ -49,7 +49,7 @@ struct ExpandedItem {
 
 @MainActor
 class BuddiViewCoordinator: ObservableObject {
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "ViewCoordinator")
+    private static let logger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "ViewCoordinator")
     static let shared = BuddiViewCoordinator()
 
     @Published var currentView: NotchViews = .buddy

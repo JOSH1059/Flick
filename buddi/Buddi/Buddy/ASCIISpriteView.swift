@@ -48,6 +48,7 @@ struct ASCIIFullSpriteView: View {
         switch animator.task {
         case .error: eye = .cross
         case .sleeping: eye = .dot
+        case .happy, .petting: eye = .spark  // sparkle eyes when happy
         default: eye = identity.eye
         }
 

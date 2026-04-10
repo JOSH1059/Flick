@@ -7,7 +7,7 @@
 import os
 import SwiftUI
 
-private let tabButtonLogger = Logger(subsystem: "com.splab.buddi", category: "TabButton")
+private let tabButtonLogger = os.Logger(subsystem: "com.splab.buddi", category: "TabButton")
 
 struct TabButton: View {
     let label: String

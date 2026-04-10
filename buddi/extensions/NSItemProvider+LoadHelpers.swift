@@ -10,7 +10,7 @@ import Foundation
 import os
 import UniformTypeIdentifiers
 
-private let itemProviderLogger = Logger(subsystem: "com.splab.buddi", category: "ItemProvider")
+private let itemProviderLogger = os.Logger(subsystem: "com.splab.buddi", category: "ItemProvider")
 
 extension NSItemProvider {
 

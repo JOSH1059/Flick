@@ -13,7 +13,7 @@ import SwiftUI
 
 @MainActor
 class CalendarManager: ObservableObject {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "Calendar")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "Calendar")
     static let shared = CalendarManager()
 
     @Published var currentWeekStartDate: Date

@@ -8,7 +8,7 @@ import Cocoa
 import os
 
 class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "ShareService")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "ShareService")
 
     @MainActor
     private var onServicesCaptured: (([NSSharingService]) -> Void)?

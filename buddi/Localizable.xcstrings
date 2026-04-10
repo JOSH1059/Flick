@@ -201,6 +201,27 @@
         }
       }
     },
+    "-" : {
+
+    },
+    "..." : {
+
+    },
+    "... (%lld more lines)" : {
+
+    },
+    "... and %lld more files" : {
+
+    },
+    "... and %lld more hunks" : {
+
+    },
+    "... and %lld more results" : {
+
+    },
+    "... and more (truncated)" : {
+
+    },
     "'Now Playing' was the only option on previous versions and works with all media apps." : {
       "localizations" : {
         "ar" : {
@@ -397,6 +418,22 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "(%@)"
+          }
+        }
+      }
+    },
+    "(No content)" : {
+
+    },
+    "(User modified)" : {
+
+    },
+    "@@ -%lld,%lld +%lld,%lld @@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "@@ -%1$lld,%2$lld +%3$lld,%4$lld @@"
           }
         }
       }
@@ -701,6 +738,39 @@
         }
       }
     },
+    "%@ - %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ - %2$@"
+          }
+        }
+      }
+    },
+    "%@ (%lld tools)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$lld tools)"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@:" : {
+
+    },
     "%d%%" : {
       "localizations" : {
         "ar" : {
@@ -900,6 +970,15 @@
           }
         }
       }
+    },
+    "%lld files with matches" : {
+
+    },
+    "%lld new messages" : {
+
+    },
+    "%lld tools" : {
+
     },
     "%lld%%" : {
       "localizations" : {
@@ -1301,6 +1380,21 @@
         }
       }
     },
+    "+" : {
+
+    },
+    "+%lld more tool uses" : {
+
+    },
+    "×%lld" : {
+
+    },
+    "<✦~✦>" : {
+
+    },
+    "1 new message" : {
+
+    },
     "About" : {
       "localizations" : {
         "ar" : {
@@ -1601,6 +1695,9 @@
         }
       }
     },
+    "Accessibility" : {
+
+    },
     "Accessibility access is required to replace the system HUD." : {
       "localizations" : {
         "ar" : {
@@ -1700,6 +1797,9 @@
           }
         }
       }
+    },
+    "Active" : {
+
     },
     "Add" : {
       "localizations" : {
@@ -2301,6 +2401,9 @@
           }
         }
       }
+    },
+    "Allow" : {
+
     },
     "Allow Access" : {
       "localizations" : {
@@ -3202,6 +3305,12 @@
         }
       }
     },
+    "Automation mode" : {
+
+    },
+    "Background task: %@" : {
+
+    },
     "Battery" : {
       "localizations" : {
         "ar" : {
@@ -3802,6 +3911,12 @@
         }
       }
     },
+    "Buddy" : {
+
+    },
+    "Built by TalkValue" : {
+
+    },
     "Calendar" : {
       "localizations" : {
         "ar" : {
@@ -4301,6 +4416,9 @@
           }
         }
       }
+    },
+    "Changes your buddy's color." : {
+
     },
     "Charging" : {
       "localizations" : {
@@ -5102,6 +5220,15 @@
         }
       }
     },
+    "Claude Code" : {
+
+    },
+    "Claude Code Hooks" : {
+
+    },
+    "Claude Code needs your input" : {
+
+    },
     "Clear slot" : {
       "localizations" : {
         "ar" : {
@@ -5502,6 +5629,9 @@
         }
       }
     },
+    "cmux" : {
+
+    },
     "Color Presets" : {
       "localizations" : {
         "ar" : {
@@ -5802,6 +5932,15 @@
         }
       }
     },
+    "Completed" : {
+
+    },
+    "Connect to Claude Code" : {
+
+    },
+    "Connected" : {
+
+    },
     "Continue" : {
       "localizations" : {
         "ar" : {
@@ -6101,6 +6240,9 @@
           }
         }
       }
+    },
+    "Created" : {
+
     },
     "Currently selected: %@" : {
       "localizations" : {
@@ -6902,6 +7044,9 @@
         }
       }
     },
+    "Customize your buddy's appearance. Changes apply everywhere — notch, lock screen, and panels." : {
+
+    },
     "Default" : {
       "localizations" : {
         "ar" : {
@@ -7001,6 +7146,9 @@
           }
         }
       }
+    },
+    "Deny" : {
+
     },
     "Description" : {
       "extractionState" : "stale",
@@ -8006,6 +8154,9 @@
         }
       }
     },
+    "Enable" : {
+
+    },
     "Enable blur effect behind album art" : {
       "localizations" : {
         "ar" : {
@@ -9007,6 +9158,9 @@
         }
       }
     },
+    "Exit: %lld" : {
+
+    },
     "Expanded drag detection area" : {
       "localizations" : {
         "ar" : {
@@ -9308,6 +9462,9 @@
         }
       }
     },
+    "Eyes" : {
+
+    },
     "Files dropped on the shelf will be shared via this service" : {
       "localizations" : {
         "ar" : {
@@ -9507,6 +9664,9 @@
           }
         }
       }
+    },
+    "Forwards Claude Code events to Buddi via Unix socket." : {
+
     },
     "Full screen behavior" : {
       "localizations" : {
@@ -10108,6 +10268,9 @@
         }
       }
     },
+    "Go to Terminal" : {
+
+    },
     "Got it!" : {
       "localizations" : {
         "ar" : {
@@ -10307,6 +10470,9 @@
           }
         }
       }
+    },
+    "Hat" : {
+
     },
     "Hide all-day events" : {
       "localizations" : {
@@ -11108,6 +11274,12 @@
         }
       }
     },
+    "Hooks installed" : {
+
+    },
+    "Hooks only send session events to Buddi. No data leaves your machine." : {
+
+    },
     "Hover delay" : {
       "localizations" : {
         "ar" : {
@@ -11608,6 +11780,9 @@
         }
       }
     },
+    "Inactive" : {
+
+    },
     "Inline" : {
       "localizations" : {
         "ar" : {
@@ -11707,6 +11882,18 @@
           }
         }
       }
+    },
+    "Install" : {
+
+    },
+    "Install Hooks" : {
+
+    },
+    "Install hooks to let Buddi monitor your Claude Code sessions, show approval requests, and track usage." : {
+
+    },
+    "Installed" : {
+
     },
     "Installed extensions" : {
       "extractionState" : "stale",
@@ -11809,6 +11996,12 @@
         }
       }
     },
+    "Integration" : {
+
+    },
+    "Interrupted" : {
+
+    },
     "Layout Preview" : {
       "localizations" : {
         "ar" : {
@@ -11908,6 +12101,9 @@
           }
         }
       }
+    },
+    "Loading messages..." : {
+
     },
     "Lottie JSON URL" : {
       "localizations" : {
@@ -13509,6 +13705,9 @@
         }
       }
     },
+    "Message Claude..." : {
+
+    },
     "Mic %@" : {
       "localizations" : {
         "ar" : {
@@ -14309,6 +14508,9 @@
         }
       }
     },
+    "Needs your input" : {
+
+    },
     "Never hide" : {
       "localizations" : {
         "ar" : {
@@ -14910,6 +15112,24 @@
         }
       }
     },
+    "No files found" : {
+
+    },
+    "No matches found" : {
+
+    },
+    "No messages yet" : {
+
+    },
+    "No results found" : {
+
+    },
+    "No sessions" : {
+
+    },
+    "Not available" : {
+
+    },
     "Not Now" : {
       "localizations" : {
         "ar" : {
@@ -15410,6 +15630,21 @@
         }
       }
     },
+    "Notification Sound" : {
+
+    },
+    "Notifications" : {
+
+    },
+    "OAuth login required for plan usage display." : {
+
+    },
+    "Off" : {
+
+    },
+    "On" : {
+
+    },
     "Open Calendar Settings" : {
       "localizations" : {
         "ar" : {
@@ -15509,6 +15744,9 @@
           }
         }
       }
+    },
+    "Open Claude Code in tmux/cmux to enable messaging" : {
+
     },
     "Open Notch" : {
       "localizations" : {
@@ -16109,6 +16347,9 @@
           }
         }
       }
+    },
+    "Plays when Claude finishes and is ready for input." : {
+
     },
     "Plugged In" : {
       "localizations" : {
@@ -16809,6 +17050,9 @@
           }
         }
       }
+    },
+    "Rarity" : {
+
     },
     "Release name" : {
       "localizations" : {
@@ -17710,6 +17954,9 @@
         }
       }
     },
+    "Reset to Original" : {
+
+    },
     "Restart" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17911,6 +18158,15 @@
         }
       }
     },
+    "Restore your buddy's original randomly-assigned appearance." : {
+
+    },
+    "Retry" : {
+
+    },
+    "Run claude in terminal" : {
+
+    },
     "Running" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -18011,6 +18267,9 @@
           }
         }
       }
+    },
+    "Screen" : {
+
     },
     "Select the music source you want to use. You can change this later in the app settings." : {
       "localizations" : {
@@ -20112,6 +20371,9 @@
         }
       }
     },
+    "Skip for now" : {
+
+    },
     "Slider color" : {
       "localizations" : {
         "ar" : {
@@ -20412,6 +20674,12 @@
         }
       }
     },
+    "Socket" : {
+
+    },
+    "Socket Control Mode" : {
+
+    },
     "Software updates" : {
       "localizations" : {
         "ar" : {
@@ -20511,6 +20779,12 @@
           }
         }
       }
+    },
+    "Sound" : {
+
+    },
+    "Species" : {
+
     },
     "Speed" : {
       "localizations" : {
@@ -20712,6 +20986,15 @@
         }
       }
     },
+    "Status" : {
+
+    },
+    "Status: %@" : {
+
+    },
+    "stderr:" : {
+
+    },
     "Stopped" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20812,6 +21095,9 @@
           }
         }
       }
+    },
+    "Subagent used %lld tools:" : {
+
     },
     "Support Us" : {
       "extractionState" : "stale",
@@ -21114,6 +21400,9 @@
         }
       }
     },
+    "Terminal" : {
+
+    },
     "Time to Full Charge: %lld min" : {
       "localizations" : {
         "ar" : {
@@ -21313,6 +21602,9 @@
           }
         }
       }
+    },
+    "To send messages from Buddi to cmux sessions, set Socket Control Mode to \"Automation mode\" in cmux Settings > Automation. This allows Buddi to communicate with cmux's Unix socket." : {
+
     },
     "Toggle Notch Open:" : {
       "localizations" : {
@@ -22015,6 +22307,9 @@
         }
       }
     },
+    "Up to date" : {
+
+    },
     "Upgrade to Pro" : {
       "localizations" : {
         "ar" : {
@@ -22114,6 +22409,9 @@
           }
         }
       }
+    },
+    "Usage tracking" : {
+
     },
     "Use music visualizer spectrogram" : {
       "localizations" : {
@@ -22414,6 +22712,9 @@
           }
         }
       }
+    },
+    "v%@" : {
+
     },
     "Version" : {
       "localizations" : {
@@ -22716,6 +23017,7 @@
       }
     },
     "Welcome" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -23115,6 +23417,9 @@
         }
       }
     },
+    "Wrote" : {
+
+    },
     "You can now enjoy the app. If you want to tweak things further, you can always visit the settings." : {
       "localizations" : {
         "ar" : {
@@ -23215,6 +23520,9 @@
         }
       }
     },
+    "You:" : {
+
+    },
     "You're All Set!" : {
       "localizations" : {
         "ar" : {
@@ -23314,6 +23622,12 @@
           }
         }
       }
+    },
+    "Your buddy is unique to you — generated from your system identity." : {
+
+    },
+    "Your Claude Code Companion" : {
+
     },
     "Your macOS system accent color" : {
       "localizations" : {

@@ -5,8 +5,12 @@ struct BuddyTabView: View {
     @ObservedObject private var bridge = BuddiSessionBridge.shared
     @ObservedObject private var panelVM = BuddiSessionBridge.shared.panelViewModel
     @ObservedObject private var usageService = UsageService.shared
+    @ObservedObject private var buddyStats = BuddyStats.shared
     @State private var suppressionToken = UUID()
     @State private var isSuppressing = false
+    @State private var lastPetTime: Date = .distantPast
+    @State private var rapidPetCount: Int = 0
+    @State private var showStatsCard = false
 
     private var isInChat: Bool {
         if case .chat = panelVM.contentType { return true }
@@ -42,6 +46,27 @@ struct BuddyTabView: View {
         }
     }
 
+    private func handlePet() {
+        let now = Date()
+        let timeSinceLast = now.timeIntervalSince(lastPetTime)
+
+        if timeSinceLast < 0.6 {
+            rapidPetCount += 1
+        } else {
+            rapidPetCount = 1
+        }
+        lastPetTime = now
+
+        BuddyStats.shared.recordPet()
+
+        let animator = BuddyManager.shared.animator
+        if rapidPetCount >= 3 {
+            animator.task = .petting
+        } else {
+            animator.task = .happy
+        }
+    }
+
     private var homeContent: some View {
         HStack(alignment: .top, spacing: 15) {
             VStack(spacing: 3) {
@@ -50,13 +75,33 @@ struct BuddyTabView: View {
                     identity: BuddyManager.shared.effectiveIdentity,
                     fontSize: 8
                 )
+                .onTapGesture {
+                    if showStatsCard {
+                        handlePet()
+                    } else {
+                        showStatsCard = true
+                    }
+                }
+                .help("Tap to pet!")
 
                 Text(BuddyManager.shared.effectiveIdentity.name
                      ?? BuddyManager.shared.effectiveIdentity.species.rawValue.capitalized)
                     .font(.caption2.weight(.medium).monospaced())
                     .foregroundColor(Color(nsColor: BuddyManager.shared.effectiveIdentity.rarity.nsColor).opacity(0.8))
+                    .onTapGesture {
+                        showStatsCard.toggle()
+                    }
+                    .help("View stats")
 
-                if usageService.isAvailable {
+                if showStatsCard {
+                    BuddyStatsCard()
+                        .transition(.asymmetric(
+                            insertion: .scale(scale: 0.8).combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                }
+
+                if usageService.isAvailable && !showStatsCard {
                     if let fh = usageService.usage.fiveHour {
                         UsageBar(
                             label: "Session",
@@ -76,6 +121,7 @@ struct BuddyTabView: View {
                 }
             }
             .frame(width: 100)
+            .animation(.easeInOut(duration: 0.2), value: showStatsCard)
 
             ClaudeInstancesView(
                 sessionMonitor: bridge.sessionMonitor,

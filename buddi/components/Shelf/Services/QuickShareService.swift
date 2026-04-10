@@ -17,7 +17,7 @@ struct QuickShareProvider: Identifiable, Hashable, Sendable {
 }
 
 class QuickShareService: ObservableObject {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "QuickShare")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "QuickShare")
 
     static let shared = QuickShareService()
     

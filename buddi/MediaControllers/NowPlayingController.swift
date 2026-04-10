@@ -10,7 +10,7 @@ import Foundation
 import os
 
 final class NowPlayingController: ObservableObject, MediaControllerProtocol {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
 
     func updatePlaybackInfo() async {
         await fetchFavoriteStateIfSupported()
@@ -350,7 +350,7 @@ struct NowPlayingPayload: Codable {
 }
 
 actor JSONLinesPipeHandler {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
 
     private let pipe: Pipe
     private let fileHandle: FileHandle

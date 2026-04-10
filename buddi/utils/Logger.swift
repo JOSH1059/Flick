@@ -16,7 +16,7 @@ enum LogCategory: String {
     case debug = "debug"
 }
 
-struct Logger {
+struct BuddiLog {
     static func log(
         _ message: String,
         category: LogCategory,
@@ -75,12 +75,12 @@ struct ViewLifecycleTracker: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear {
-                Logger.log("\(identifier) appeared", category: .lifecycle)
-                Logger.trackMemory()
+                BuddiLog.log("\(identifier) appeared", category: .lifecycle)
+                BuddiLog.trackMemory()
             }
             .onDisappear {
-                Logger.log("\(identifier) disappeared", category: .lifecycle)
-                Logger.trackMemory()
+                BuddiLog.log("\(identifier) disappeared", category: .lifecycle)
+                BuddiLog.trackMemory()
             }
     }
 } 

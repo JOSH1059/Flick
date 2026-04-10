@@ -18,6 +18,7 @@ final class SpriteAnimator: ObservableObject {
             guard task != oldValue else { return }
             tick = 0
             successCountdown = task == .success ? 5 : 0
+            happyCountdown = (task == .happy) ? 6 : (task == .petting ? 10 : 0)
             updateFrame()
             restartTimer()
         }
@@ -32,6 +33,7 @@ final class SpriteAnimator: ObservableObject {
     private var tick: Int = 0
     private var timer: Timer?
     private var successCountdown: Int = 0
+    private var happyCountdown: Int = 0
 
     init(identity: BuddyIdentity) {
         self.identity = identity
@@ -67,6 +69,14 @@ final class SpriteAnimator: ObservableObject {
             }
         }
 
+        if task == .happy || task == .petting {
+            happyCountdown -= 1
+            if happyCountdown <= 0 {
+                task = .idle
+                return
+            }
+        }
+
         updateFrame()
     }
 
@@ -94,6 +104,8 @@ final class SpriteAnimator: ObservableObject {
         case .sleeping: 1.2   // 1.2s zzz scroll
         case .error: 0.5      // 500ms
         case .success: 0.5    // 500ms countdown
+        case .happy: 0.3      // 300ms bouncy
+        case .petting: 0.25   // 250ms excited
         }
     }
 }
@@ -150,6 +162,15 @@ enum SpriteFrameLogic {
 
         case .success:
             return baseFace + " \u{2713}"
+
+        case .happy:
+            let hearts = tick % 2 == 0 ? " ♥" : " ♡"
+            return happyFace(baseFace, eye: eye) + hearts
+
+        case .petting:
+            let hearts = String(repeating: "♥", count: (tick % 3) + 1)
+            let bounce = tick % 2 == 0 ? baseFace : happyFace(baseFace, eye: eye)
+            return bounce + " " + hearts
         }
     }
 
@@ -161,6 +182,9 @@ enum SpriteFrameLogic {
         }
         if task == .error {
             return errorFace(base, eye: eye) + suffix
+        }
+        if task == .happy || task == .petting {
+            return happyFace(base, eye: eye) + suffix
         }
         return base + suffix
     }
@@ -175,6 +199,10 @@ enum SpriteFrameLogic {
 
     static func errorFace(_ face: String, eye: BuddyEye) -> String {
         face.replacingOccurrences(of: eye.rawValue, with: "X")
+    }
+
+    static func happyFace(_ face: String, eye: BuddyEye) -> String {
+        face.replacingOccurrences(of: eye.rawValue, with: "^")
     }
 
     static func shiftEyeRight(_ face: String, eye: BuddyEye) -> String {

@@ -8,7 +8,7 @@ import SwiftUI
 /// A view model that manages and monitors the battery status of the device
 class BatteryStatusViewModel: ObservableObject {
 
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "Battery")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "Battery")
 
     private var wasCharging: Bool = false
     private var powerSourceChangedCallback: IOPowerSourceCallbackType?

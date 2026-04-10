@@ -42,7 +42,7 @@ struct BuddiExtrasMenu : View {
     var github: some View {
         BuddiLargeButtons(
             action: {
-                if let url = URL(string: "https://github.com/user/buddi") {
+                if let url = URL(string: "https://github.com/JOSH1059/Buddi") {
                     NSWorkspace.shared.open(url)
                 }
             },

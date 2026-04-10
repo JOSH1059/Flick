@@ -5,7 +5,7 @@ import os
 /// Manages and monitors battery status changes on the device
 /// - Note: This class uses the IOKit framework to monitor battery status
 class BatteryActivityManager {
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "BatteryActivity")
+    private static let logger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "BatteryActivity")
 
     static let shared = BatteryActivityManager()
 

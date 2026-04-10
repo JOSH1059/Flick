@@ -12,7 +12,7 @@ import os
 
 
 final class ShelfPersistenceService {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "ShelfPersistence")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "ShelfPersistence")
 
     static let shared = ShelfPersistenceService()
 

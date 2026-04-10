@@ -16,6 +16,8 @@ final class BuddiSessionBridge: ObservableObject {
     private var hasSeededWaitingForInputSessions = false
     private var knownPendingPermissionIDs = Set<String>()
     private var hasSeededPendingPermissions = false
+    private var knownSessionIDs = Set<String>()
+    private var previousPhases: [String: SessionPhase] = [:]
 
     private init() {
         sessionMonitor.$instances
@@ -74,6 +76,50 @@ final class BuddiSessionBridge: ObservableObject {
                 )
             }
             .store(in: &cancellables)
+
+        // Stats tracking: record session events for buddy XP/affection
+        sessionMonitor.$instances
+            .sink { [weak self] instances in
+                self?.trackStatsFromSessions(instances)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func trackStatsFromSessions(_ instances: [SessionState]) {
+        let stats = BuddyStats.shared
+
+        for session in instances {
+            let id = session.sessionId
+
+            // New session detected
+            if !knownSessionIDs.contains(id) {
+                knownSessionIDs.insert(id)
+                stats.recordSessionParticipated()
+            }
+
+            // Phase transitions
+            let prevPhase = previousPhases[id]
+            let currentPhase = session.phase
+
+            if prevPhase != currentPhase {
+                // Tool was approved: went from waitingForApproval → processing
+                if prevPhase?.isWaitingForApproval == true && currentPhase == .processing {
+                    stats.recordToolApproval()
+                }
+
+                // Message witnessed: went from waitingForInput → processing (user sent a message)
+                if prevPhase == .waitingForInput && currentPhase == .processing {
+                    stats.recordMessageWitnessed()
+                }
+
+                previousPhases[id] = currentPhase
+            }
+
+            // Clean up ended sessions
+            if currentPhase == .ended {
+                previousPhases.removeValue(forKey: id)
+            }
+        }
     }
 
     func startMonitoring() {

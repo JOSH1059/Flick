@@ -15,7 +15,7 @@ import Sparkle
 // MARK: - NotchMenuView
 
 struct NotchMenuView: View {
-    private static let logger = Logger(subsystem: "com.splab.buddi", category: "NotchMenu")
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "NotchMenu")
     @ObservedObject var viewModel: BuddyPanelViewModel
     @ObservedObject private var updateManager = UpdateManager.shared
     @ObservedObject private var screenSelector = ScreenSelector.shared
@@ -91,7 +91,7 @@ struct NotchMenuView: View {
                 icon: "star",
                 label: "Star on GitHub"
             ) {
-                if let url = URL(string: "https://github.com/ArtRabbitStudio/buddi") {
+                if let url = URL(string: "https://github.com/JOSH1059/Buddi") {
                     NSWorkspace.shared.open(url)
                 }
             }
