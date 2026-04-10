@@ -5,12 +5,15 @@
 //
 
 import Foundation
+import os
 
 // Access model types
 @_exported import struct Foundation.URL
 
 
 final class ShelfPersistenceService {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "ShelfPersistence")
+
     static let shared = ShelfPersistenceService()
 
     private let fileURL: URL
@@ -40,7 +43,7 @@ final class ShelfPersistenceService {
         do {
             // Parse as JSON array to get individual item data
             guard let jsonArray = try JSONSerialization.jsonObject(with: data) as? [Any] else {
-                print("⚠️ Shelf persistence file is not a valid JSON array")
+                Self.logger.warning("Shelf persistence file is not a valid JSON array")
                 return []
             }
             
@@ -54,17 +57,17 @@ final class ShelfPersistenceService {
                     validItems.append(item)
                 } catch {
                     failedCount += 1
-                    print("⚠️ Failed to decode shelf item at index \(index): \(error.localizedDescription)")
+                    Self.logger.warning("Failed to decode shelf item at index \(index, privacy: .public): \(error.localizedDescription, privacy: .private)")
                 }
             }
             
             if failedCount > 0 {
-                print("📦 Successfully loaded \(validItems.count) shelf items, discarded \(failedCount) corrupted items")
+                Self.logger.debug("Successfully loaded \(validItems.count, privacy: .public) shelf items, discarded \(failedCount, privacy: .public) corrupted items")
             }
             
             return validItems
         } catch {
-            print("❌ Failed to parse shelf persistence file: \(error.localizedDescription)")
+            Self.logger.error("Failed to parse shelf persistence file: \(error.localizedDescription, privacy: .private)")
             return []
         }
     }
@@ -74,7 +77,7 @@ final class ShelfPersistenceService {
             let data = try encoder.encode(items)
             try data.write(to: fileURL, options: Data.WritingOptions.atomic)
         } catch {
-            print("Failed to save shelf items: \(error.localizedDescription)")
+            Self.logger.error("Failed to save shelf items: \(error.localizedDescription, privacy: .private)")
         }
     }
 }

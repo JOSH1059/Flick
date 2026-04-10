@@ -7,6 +7,7 @@
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
+import os
 
 enum TempFileType {
     case data(Data, suggestedName: String?)
@@ -16,6 +17,7 @@ enum TempFileType {
 
 class TemporaryFileStorageService {
     static let shared = TemporaryFileStorageService()
+    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "TempStorage")
     
     // MARK: - Public Interface
     
@@ -31,7 +33,7 @@ class TemporaryFileStorageService {
         let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
 
         guard url.path.hasPrefix(tempDirectory.path) else {
-            print("Attempted to remove temporary file outside temp directory: \(url.path)")
+            Self.logger.warning("Attempted to remove temporary file outside temp directory: \(url.path, privacy: .private)")
             return
         }
 
@@ -39,18 +41,18 @@ class TemporaryFileStorageService {
 
         do {
             try FileManager.default.removeItem(at: url)
-            print("Deleted file: \(url.path)")
+            Self.logger.debug("Deleted file: \(url.path, privacy: .private)")
 
             let contents = try FileManager.default.contentsOfDirectory(atPath: folderURL.path)
             if contents.isEmpty {
                 try FileManager.default.removeItem(at: folderURL)
-                print("Folder was empty, deleted folder: \(folderURL.path)")
+                Self.logger.debug("Folder was empty, deleted folder: \(folderURL.path, privacy: .private)")
             } else {
-                print("Folder not deleted — it still contains \(contents.count) item(s).")
+                Self.logger.debug("Folder not deleted — it still contains \(contents.count) item(s).")
             }
 
         } catch {
-            print("Error: \(error.localizedDescription)")
+            Self.logger.error("Error removing temporary file: \(error.localizedDescription, privacy: .private)")
         }
     }
     
@@ -71,17 +73,17 @@ class TemporaryFileStorageService {
                 try data.write(to: fileURL)
                 return fileURL
             } catch {
-                print("Error: \(error)")
+                Self.logger.error("Error creating temp data file: \(error.localizedDescription, privacy: .private)")
                 return nil
             }
-            
+
         case .text(let string):
             let filename = "\(uuid).txt"
             let dirURL = tempDir.appendingPathComponent(uuid, isDirectory: true)
             let fileURL = dirURL.appendingPathComponent(filename)
             
             guard let data = string.data(using: .utf8) else {
-                print("❌ Failed to convert text to data")
+                Self.logger.error("Failed to convert text to data")
                 return nil
             }
             
@@ -90,10 +92,10 @@ class TemporaryFileStorageService {
                 try data.write(to: fileURL)
                 return fileURL
             } catch {
-                print("Error: \(error)")
+                Self.logger.error("Error creating temp text file: \(error.localizedDescription, privacy: .private)")
                 return nil
             }
-            
+
         case .url(let url):
             let filename = "\(url.host ?? uuid).webloc"
             let dirURL = tempDir.appendingPathComponent(uuid, isDirectory: true)
@@ -101,7 +103,7 @@ class TemporaryFileStorageService {
             
             let weblocContent = createWeblocContent(for: url)
             guard let data = weblocContent.data(using: String.Encoding.utf8) else {
-                print("❌ Failed to create webloc data")
+                Self.logger.error("Failed to create webloc data")
                 return nil
             }
             
@@ -110,7 +112,7 @@ class TemporaryFileStorageService {
                 try data.write(to: fileURL)
                 return fileURL
             } catch {
-                print("Error: \(error)")
+                Self.logger.error("Error creating temp webloc file: \(error.localizedDescription, privacy: .private)")
                 return nil
             }
         }
@@ -121,7 +123,7 @@ class TemporaryFileStorageService {
             try data.write(to: url)
             return url
         } catch {
-            print("❌ Failed to create temp file at \(url.path): \(error)")
+            Self.logger.error("Failed to create temp file at \(url.path, privacy: .private): \(error.localizedDescription, privacy: .private)")
             return nil
         }
     }
@@ -133,7 +135,7 @@ class TemporaryFileStorageService {
         do {
             try FileManager.default.createDirectory(at: workingDir, withIntermediateDirectories: true)
         } catch {
-            print("❌ Failed to create zip working directory: \(error)")
+            Self.logger.error("Failed to create zip working directory: \(error.localizedDescription, privacy: .private)")
             return nil
         }
 
@@ -148,7 +150,7 @@ class TemporaryFileStorageService {
                 proc.waitUntilExit()
                 return proc.terminationStatus == 0
             } catch {
-                print("❌ Failed to run zip: \(error)")
+                Self.logger.error("Failed to run zip: \(error.localizedDescription, privacy: .private)")
                 return false
             }
         }
@@ -199,7 +201,7 @@ class TemporaryFileStorageService {
                     try FileManager.default.copyItem(at: src, to: dest)
                 }
             } catch {
-                print("⚠️ Failed to copy \(src.path) to working dir: \(error)")
+                Self.logger.warning("Failed to copy \(src.path, privacy: .private) to working dir: \(error.localizedDescription, privacy: .private)")
             }
         }
 
@@ -217,7 +219,7 @@ class TemporaryFileStorageService {
                     }
                 }
             } catch {
-                print("⚠️ Failed to cleanup working directory after zip: \(error)")
+                Self.logger.warning("Failed to cleanup working directory after zip: \(error.localizedDescription, privacy: .private)")
             }
             return archiveURL
         } else {

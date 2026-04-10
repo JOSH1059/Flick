@@ -7,8 +7,11 @@
 import AppKit
 import Combine
 import Foundation
+import os
 
 final class NowPlayingController: ObservableObject, MediaControllerProtocol {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
+
     func updatePlaybackInfo() async {
         await fetchFavoriteStateIfSupported()
     }
@@ -347,6 +350,8 @@ struct NowPlayingPayload: Codable {
 }
 
 actor JSONLinesPipeHandler {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "NowPlaying")
+
     private let pipe: Pipe
     private let fileHandle: FileHandle
     private var buffer = ""
@@ -366,7 +371,7 @@ actor JSONLinesPipeHandler {
                 await onLine(decodedObject)
             }
         } catch {
-            print("Error processing JSON stream: \(error)")
+            Self.logger.error("Error processing JSON stream: \(error, privacy: .private)")
         }
     }
     
@@ -419,7 +424,7 @@ actor JSONLinesPipeHandler {
             try fileHandle.close()
             try pipe.fileHandleForWriting.close()
         } catch {
-            print("Error closing pipe handler: \(error)")
+            Self.logger.error("Error closing pipe handler: \(error, privacy: .private)")
         }
     }
 }

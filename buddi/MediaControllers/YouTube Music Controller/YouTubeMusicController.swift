@@ -8,9 +8,12 @@
 
 import Foundation
 import Combine
+import os
 import SwiftUI
 
 final class YouTubeMusicController: MediaControllerProtocol {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "YouTubeMusic")
+
     // MARK: - Published Properties
     @Published var playbackState = PlaybackState(
         bundleIdentifier: YouTubeMusicConfiguration.default.bundleIdentifier
@@ -39,7 +42,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
             try? await Task.sleep(for: .milliseconds(150))
             await updatePlaybackInfo()
         } catch {
-            print("[YouTubeMusicController] Failed to set favorite: \(error)")
+            Self.logger.error("Failed to set favorite: \(error, privacy: .private)")
         }
     }
 
@@ -137,7 +140,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
         } catch YouTubeMusicError.authenticationRequired {
             await authManager.invalidateToken()
         } catch {
-            print("[YouTubeMusicController] Failed to update playback info: \(error)")
+            Self.logger.error("Failed to update playback info: \(error, privacy: .private)")
         }
     }
     
@@ -205,14 +208,14 @@ final class YouTubeMusicController: MediaControllerProtocol {
             await startPeriodicUpdates()
             await updatePlaybackInfo()
         } catch {
-            print("[YouTubeMusicController] Failed to initialize: \(error)")
+            Self.logger.error("Failed to initialize: \(error, privacy: .private)")
             await scheduleReconnect()
         }
     }
     
     private func setupWebSocketIfPossible(token: String) async {
         guard let wsURL = WebSocketURLBuilder.buildURL(from: configuration.baseURL) else {
-            print("[YouTubeMusicController] Failed to build WebSocket URL")
+            Self.logger.warning("Failed to build WebSocket URL")
             return
         }
         
@@ -231,7 +234,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
             stopPeriodicUpdates() // WebSocket will provide real-time updates
             reconnectDelay = configuration.reconnectDelay.lowerBound
         } catch {
-            print("[YouTubeMusicController] WebSocket connection failed: \(error)")
+            Self.logger.error("WebSocket connection failed: \(error, privacy: .private)")
             await scheduleReconnect()
         }
     }
@@ -386,7 +389,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
         } catch YouTubeMusicError.authenticationRequired {
             await authManager.invalidateToken()
         } catch {
-            print("[YouTubeMusicController] Command failed: \(error)")
+            Self.logger.error("Command failed: \(error, privacy: .private)")
         }
     }
     

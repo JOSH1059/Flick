@@ -7,10 +7,13 @@
 
 import AppKit
 import Foundation
+import os
 import UniformTypeIdentifiers
 
+private let itemProviderLogger = Logger(subsystem: "com.splab.buddi", category: "ItemProvider")
+
 extension NSItemProvider {
-    
+
     func extractItem() async -> URL? {
         return await loadFileURL(typeIdentifier: UTType.item.identifier)
     }
@@ -31,7 +34,7 @@ extension NSItemProvider {
         return await withCheckedContinuation { (cont: CheckedContinuation<Data?, Never>) in
             loadItem(forTypeIdentifier: UTType.data.identifier, options: nil) { item, error in
                 if let error = error {
-                    print("Error loading data for type \(UTType.data.identifier): \(error.localizedDescription)")
+                    itemProviderLogger.error("Error loading data for type \(UTType.data.identifier, privacy: .public): \(error.localizedDescription, privacy: .private)")
                     cont.resume(returning: nil)
                     return
                 }
@@ -48,19 +51,19 @@ extension NSItemProvider {
                     do {
                         // Delete the file first
                         try fileManager.removeItem(at: url)
-                        print("Deleted file: \(url.path)")
+                        itemProviderLogger.debug("Deleted file: \(url.path, privacy: .private)")
 
                         // Check folder contents
                         let contents = try fileManager.contentsOfDirectory(atPath: folderURL.path)
                         if contents.isEmpty {
                             try fileManager.removeItem(at: folderURL)
-                            print("Folder was empty, deleted folder: \(folderURL.path)")
+                            itemProviderLogger.debug("Folder was empty, deleted folder: \(folderURL.path, privacy: .private)")
                         } else {
-                            print("Folder not deleted — it still contains \(contents.count) item(s).")
+                            itemProviderLogger.debug("Folder not deleted — it still contains \(contents.count, privacy: .public) item(s).")
                         }
 
                     } catch {
-                        print("Error: \(error.localizedDescription)")
+                        itemProviderLogger.error("Error cleaning up temporary files: \(error.localizedDescription, privacy: .private)")
                     }
                     
                     cont.resume(returning: data)
@@ -103,7 +106,7 @@ extension NSItemProvider {
         await withCheckedContinuation { (cont: CheckedContinuation<URL?, Never>) in
             self.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
                 if let error = error {
-                    print("❌ Error loading item for type \(typeIdentifier): \(error.localizedDescription)")
+                    itemProviderLogger.error("Error loading item for type \(typeIdentifier, privacy: .public): \(error.localizedDescription, privacy: .private)")
                     cont.resume(returning: nil)
                     return
                 }

@@ -114,7 +114,21 @@ typealias PermissionFailureHandler = @Sendable (_ sessionId: String, _ toolUseId
 /// Uses GCD DispatchSource for non-blocking I/O
 class HookSocketServer {
     static let shared = HookSocketServer()
-    static let socketPath = "/tmp/buddi.sock"
+    static let socketPath: String = {
+        guard let appSupport = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else {
+            // Fallback — should never happen on macOS
+            return NSTemporaryDirectory() + "buddi.sock"
+        }
+        let buddiDir = appSupport.appendingPathComponent("Buddi")
+        try? FileManager.default.createDirectory(
+            at: buddiDir,
+            withIntermediateDirectories: true
+        )
+        return buddiDir.appendingPathComponent("buddi.sock").path
+    }()
 
     private var serverSocket: Int32 = -1
     private var acceptSource: DispatchSourceRead?
@@ -386,6 +400,20 @@ class HookSocketServer {
         let clientSocket = accept(serverSocket, nil, nil)
         guard clientSocket >= 0 else { return }
 
+        // Verify peer credentials — only accept connections from the same user
+        var euid: uid_t = 0
+        var egid: gid_t = 0
+        guard getpeereid(clientSocket, &euid, &egid) == 0 else {
+            logger.warning("Failed to get peer credentials — rejecting connection")
+            close(clientSocket)
+            return
+        }
+        guard euid == getuid() else {
+            logger.warning("Rejected socket connection from different UID: \(euid, privacy: .public)")
+            close(clientSocket)
+            return
+        }
+
         var nosigpipe: Int32 = 1
         setsockopt(clientSocket, SOL_SOCKET, SO_NOSIGPIPE, &nosigpipe, socklen_t(MemoryLayout<Int32>.size))
 
@@ -431,7 +459,8 @@ class HookSocketServer {
         let data = allData
 
         guard let event = try? JSONDecoder().decode(HookEvent.self, from: data) else {
-            logger.warning("Failed to parse event: \(String(data: data, encoding: .utf8) ?? "?", privacy: .public)")
+            let preview = String(data: data.prefix(100), encoding: .utf8) ?? "?"
+            logger.warning("Failed to parse event (\(data.count, privacy: .public) bytes): \(preview, privacy: .private)")
             close(clientSocket)
             return
         }

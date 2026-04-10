@@ -1,9 +1,11 @@
 import Foundation
 import IOKit.ps
+import os
 
 /// Manages and monitors battery status changes on the device
 /// - Note: This class uses the IOKit framework to monitor battery status
 class BatteryActivityManager {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "BatteryActivity")
 
     static let shared = BatteryActivityManager()
 
@@ -264,16 +266,16 @@ class BatteryActivityManager {
             return batteryInfo
             
         } catch BatteryError.powerSourceUnavailable {
-            print("⚠️ Error: Power source information unavailable")
+            Self.logger.warning("Power source information unavailable")
             return defaultBatteryInfo
         } catch BatteryError.batteryInfoUnavailable(let reason) {
-            print("⚠️ Error: Battery information unavailable - \(reason)")
+            Self.logger.warning("Battery information unavailable - \(reason, privacy: .public)")
             return defaultBatteryInfo
         } catch BatteryError.batteryParameterMissing(let parameter) {
-            print("⚠️ Error: Battery parameter missing - \(parameter)")
+            Self.logger.warning("Battery parameter missing - \(parameter, privacy: .public)")
             return defaultBatteryInfo
         } catch {
-            print("⚠️ Error: Unexpected error getting battery info - \(error.localizedDescription)")
+            Self.logger.error("Unexpected error getting battery info - \(error.localizedDescription, privacy: .private)")
             return defaultBatteryInfo
         }
     }

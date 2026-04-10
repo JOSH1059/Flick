@@ -8,10 +8,12 @@ import AppKit
 import ApplicationServices
 import Defaults
 import AVFoundation
+import os
 
 private let kSystemDefinedEventType = CGEventType(rawValue: 14)!
 
 final class MediaKeyInterceptor {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "MediaKeys")
     static let shared = MediaKeyInterceptor()
     
     private enum NXKeyType: Int {
@@ -159,12 +161,12 @@ final class MediaKeyInterceptor {
         if FileManager.default.fileExists(atPath: defaultPath) {
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: defaultPath))
-                print("🔊 [MediaKeyInterceptor] Loaded default Bezel audio from: \(defaultPath)")
+                Self.logger.debug("Loaded default Bezel audio from: \(defaultPath, privacy: .private)")
             } catch {
-                print("⚠️ [MediaKeyInterceptor] Failed to init AVAudioPlayer with default path \(defaultPath): \(error.localizedDescription)")
+                Self.logger.warning("Failed to init AVAudioPlayer with default path: \(error.localizedDescription, privacy: .private)")
             }
         } else {
-            print("⚠️ [MediaKeyInterceptor] Default bezel audio not found at: \(defaultPath)")
+            Self.logger.warning("Default bezel audio not found at expected path")
         }
 
         if let player = audioPlayer {
@@ -180,13 +182,13 @@ final class MediaKeyInterceptor {
 
         prepareAudioPlayerIfNeeded()
         guard let player = audioPlayer else {
-            print("⚠️ [MediaKeyInterceptor] No audio player available to play feedback sound")
+            Self.logger.warning("No audio player available to play feedback sound")
             return
         }
         if let url = player.url {
-            print("🔊 [MediaKeyInterceptor] Playing feedback sound from: \(url.path)")
+            Self.logger.debug("Playing feedback sound from: \(url.path, privacy: .private)")
         } else {
-            print("🔊 [MediaKeyInterceptor] Playing feedback sound (no url available for AVAudioPlayer)")
+            Self.logger.debug("Playing feedback sound (no URL available for AVAudioPlayer)")
         }
         if player.isPlaying {
             player.stop()

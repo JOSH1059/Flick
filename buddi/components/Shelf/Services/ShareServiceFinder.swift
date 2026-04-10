@@ -5,8 +5,10 @@
 //
 
 import Cocoa
+import os
 
 class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "ShareService")
 
     @MainActor
     private var onServicesCaptured: (([NSSharingService]) -> Void)?
@@ -39,7 +41,7 @@ class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
                 try? await Task.sleep(for: .seconds(timeout))
                 guard !didResume else { return }
                 didResume = true
-                print("Warning: timed out waiting for sharing services")
+                Self.logger.warning("Timed out waiting for sharing services")
                 continuation.resume(returning: [])
             }
         }

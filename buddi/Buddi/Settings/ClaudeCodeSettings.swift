@@ -84,7 +84,7 @@ struct ClaudeCodeSettings: View {
                 HStack {
                     Text("Socket")
                     Spacer()
-                    let active = FileManager.default.fileExists(atPath: "/tmp/buddi.sock")
+                    let active = FileManager.default.fileExists(atPath: HookSocketServer.socketPath)
                     Circle()
                         .fill(active ? Color.green : Color.red)
                         .frame(width: 8, height: 8)

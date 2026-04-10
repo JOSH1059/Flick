@@ -6,12 +6,14 @@
 
 import Defaults
 import EventKit
+import os
 import SwiftUI
 
 // MARK: - CalendarManager
 
 @MainActor
 class CalendarManager: ObservableObject {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "Calendar")
     static let shared = CalendarManager()
 
     @Published var currentWeekStartDate: Date
@@ -65,7 +67,7 @@ class CalendarManager: ObservableObject {
     func checkCalendarAuthorization() async {
         let status = EKEventStore.authorizationStatus(for: .event)
         DispatchQueue.main.async {
-            print("📅 Current calendar authorization status: \(status)")
+            Self.logger.debug("\("Current calendar authorization status", privacy: .public): \(String(describing: status), privacy: .private)")
             self.calendarAuthorizationStatus = status
         }
 
@@ -95,14 +97,14 @@ class CalendarManager: ObservableObject {
         case .writeOnly:
             NSLog("Write only")
         @unknown default:
-            print("Unknown authorization status")
+            Self.logger.warning("\("Unknown calendar authorization status", privacy: .public)")
         }
     }
-    
+
     func checkReminderAuthorization() async {
         let status = EKEventStore.authorizationStatus(for: .reminder)
         DispatchQueue.main.async {
-            print("📅 Current reminder authorization status: \(status)")
+            Self.logger.debug("\("Current reminder authorization status", privacy: .public): \(String(describing: status), privacy: .private)")
             self.reminderAuthorizationStatus = status
         }
 
@@ -124,10 +126,10 @@ class CalendarManager: ObservableObject {
         case .writeOnly:
             NSLog("Write only")
         @unknown default:
-            print("Unknown authorization status")
+            Self.logger.warning("\("Unknown reminder authorization status", privacy: .public)")
         }
     }
-        
+
 
     func updateSelectedCalendars() {
         // Populate selectedCalendarIDs based on Defaults calendar selection state

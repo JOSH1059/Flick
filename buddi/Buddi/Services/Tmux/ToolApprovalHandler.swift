@@ -98,20 +98,22 @@ actor ToolApprovalHandler {
         }
 
         let password = Self.readCmuxSocketPassword()
+        // Pass password via environment variable instead of CLI args to avoid exposure in ps output
+        let env: [String: String]? = password.map { ["CMUX_PASSWORD": $0] }
 
         do {
             Self.logger.debug("Sending text to cmux \(surface, privacy: .public)")
             let sendArgs = password != nil
-                ? ["--password", password!, "send", "--workspace", workspace, "--surface", surface, keys]
+                ? ["--password-env", "CMUX_PASSWORD", "send", "--workspace", workspace, "--surface", surface, keys]
                 : ["send", "--workspace", workspace, "--surface", surface, keys]
-            _ = try await ProcessExecutor.shared.run(cmuxPath, arguments: sendArgs)
+            _ = try await ProcessExecutor.shared.run(cmuxPath, arguments: sendArgs, environment: env)
 
             if pressEnter {
                 Self.logger.debug("Sending Enter key to cmux")
                 let keyArgs = password != nil
-                    ? ["--password", password!, "send-key", "--workspace", workspace, "--surface", surface, "return"]
+                    ? ["--password-env", "CMUX_PASSWORD", "send-key", "--workspace", workspace, "--surface", surface, "return"]
                     : ["send-key", "--workspace", workspace, "--surface", surface, "return"]
-                _ = try await ProcessExecutor.shared.run(cmuxPath, arguments: keyArgs)
+                _ = try await ProcessExecutor.shared.run(cmuxPath, arguments: keyArgs, environment: env)
             }
             return true
         } catch {

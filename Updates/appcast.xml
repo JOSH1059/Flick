@@ -8,7 +8,8 @@
             <sparkle:version>1</sparkle:version>
             <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/talkvalue/Buddi/releases/download/v0.1.0/buddi-0.1.0.dmg" length="9748523" type="application/octet-stream"/>
+            <!-- TODO: Generate real signature with: sparkle/bin/sign_update buddi-0.1.0.dmg -->
+            <enclosure url="https://github.com/talkvalue/Buddi/releases/download/v0.1.0/buddi-0.1.0.dmg" sparkle:edSignature="REPLACE_WITH_REAL_SIGNATURE" length="9748523" type="application/octet-stream"/>
         </item>
     </channel>
 </rss>

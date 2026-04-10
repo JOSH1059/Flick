@@ -4,7 +4,10 @@
 //
 //
 
+import os
 import SwiftUI
+
+private let tabButtonLogger = Logger(subsystem: "com.splab.buddi", category: "TabButton")
 
 struct TabButton: View {
     let label: String
@@ -24,6 +27,6 @@ struct TabButton: View {
 
 #Preview {
     TabButton(label: "Home", icon: "tray.fill", selected: true) {
-        print("Tapped")
+        tabButtonLogger.debug("Tapped")
     }
 }

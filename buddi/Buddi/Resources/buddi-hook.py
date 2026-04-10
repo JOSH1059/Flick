@@ -9,7 +9,10 @@ import os
 import socket
 import sys
 
-SOCKET_PATH = "/tmp/buddi.sock"
+SOCKET_PATH = os.path.join(
+    os.path.expanduser("~/Library/Application Support/Buddi"),
+    "buddi.sock"
+)
 TIMEOUT_SECONDS = 300  # 5 minutes for permission decisions
 
 

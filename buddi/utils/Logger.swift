@@ -1,16 +1,19 @@
 import Foundation
+import os
 import SwiftUI
 
+private let buddiLogger = os.Logger(subsystem: "com.splab.buddi", category: "App")
+
 enum LogCategory: String {
-    case lifecycle = "🔄"
-    case memory = "💾"
-    case performance = "⚡️"
-    case ui = "🎨"
-    case network = "🌐"
-    case error = "❌"
-    case warning = "⚠️"
-    case success = "✅"
-    case debug = "🔍"
+    case lifecycle = "lifecycle"
+    case memory = "memory"
+    case performance = "performance"
+    case ui = "ui"
+    case network = "network"
+    case error = "error"
+    case warning = "warning"
+    case success = "success"
+    case debug = "debug"
 }
 
 struct Logger {
@@ -22,8 +25,14 @@ struct Logger {
         line: Int = #line
     ) {
         let fileName = (file as NSString).lastPathComponent
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        print("\(category.rawValue) [\(timestamp)] [\(fileName):\(line)] \(function) - \(message)")
+        switch category {
+        case .error:
+            buddiLogger.error("[\(fileName, privacy: .public):\(line, privacy: .public)] \(function, privacy: .public) - \(message, privacy: .private)")
+        case .warning:
+            buddiLogger.warning("[\(fileName, privacy: .public):\(line, privacy: .public)] \(function, privacy: .public) - \(message, privacy: .private)")
+        default:
+            buddiLogger.debug("[\(fileName, privacy: .public):\(line, privacy: .public)] \(function, privacy: .public) - \(message, privacy: .private)")
+        }
     }
     
     static func trackMemory(

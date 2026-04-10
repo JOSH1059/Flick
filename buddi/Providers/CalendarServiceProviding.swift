@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os
 @preconcurrency import EventKit
 
 protocol CalendarServiceProviding {
@@ -16,6 +17,7 @@ protocol CalendarServiceProviding {
 }
 
 class CalendarService: CalendarServiceProviding {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "CalendarService")
     private let store = EKEventStore()
     
     @MainActor
@@ -112,7 +114,7 @@ class CalendarService: CalendarServiceProviding {
         do {
             try store.save(reminder, commit: true)
         } catch {
-            print("Failed to update reminder completion: \(error)")
+            Self.logger.error("Failed to update reminder completion: \(error.localizedDescription, privacy: .private)")
         }
     }
 }

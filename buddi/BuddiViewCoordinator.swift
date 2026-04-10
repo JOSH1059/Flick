@@ -7,6 +7,7 @@
 import AppKit
 import Combine
 import Defaults
+import os
 import SwiftUI
 
 enum SneakContentType {
@@ -48,6 +49,7 @@ struct ExpandedItem {
 
 @MainActor
 class BuddiViewCoordinator: ObservableObject {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "ViewCoordinator")
     static let shared = BuddiViewCoordinator()
 
     @Published var currentView: NotchViews = .buddy
@@ -197,12 +199,12 @@ class BuddiViewCoordinator: ObservableObject {
             let value = CGFloat((formatter.number(from: decodedData.value) ?? 0.0).floatValue)
             let icon = decodedData.icon
 
-            print("Decoded: \(decodedData), Parsed value: \(value)")
+            Self.logger.debug("Decoded sneak peek data, parsed value: \(value, privacy: .public)")
 
             toggleSneakPeek(status: decodedData.show, type: contentType, value: value, icon: icon)
 
         } else {
-            print("Failed to decode JSON data")
+            Self.logger.warning("Failed to decode JSON data")
         }
     }
 

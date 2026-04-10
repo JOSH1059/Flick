@@ -6,6 +6,7 @@
 
 import AppKit
 import Foundation
+import os
 import UniformTypeIdentifiers
 
 /// Dynamic representation of a sharing provider discovered at runtime
@@ -16,6 +17,8 @@ struct QuickShareProvider: Identifiable, Hashable, Sendable {
 }
 
 class QuickShareService: ObservableObject {
+    private static let logger = Logger(subsystem: "com.splab.buddi", category: "QuickShare")
+
     static let shared = QuickShareService()
     
     @Published var availableProviders: [QuickShareProvider] = []
@@ -76,7 +79,7 @@ class QuickShareService: ObservableObject {
     @MainActor
     func showFilePicker(for provider: QuickShareProvider, from view: NSView?) async {
         guard !isPickerOpen else {
-            print("⚠️ QuickShareService: File picker already open")
+            Self.logger.warning("File picker already open")
             return
         }
 
@@ -191,7 +194,7 @@ private class SharingServiceDelegate: NSObject {}
                 }
             }
         }
-        print("❌ Failed to resolve bookmark for shelf item")
+        Self.logger.error("Failed to resolve bookmark for shelf item")
         return nil
     }
 }

@@ -5,7 +5,11 @@
 //  Auto-installs Claude Code hooks on app launch
 //
 
+import CommonCrypto
 import Foundation
+import os
+
+private let logger = os.Logger(subsystem: "com.splab.buddi", category: "HookInstaller")
 
 struct HookInstaller {
 
@@ -23,15 +27,44 @@ struct HookInstaller {
         )
 
         if let bundled = Bundle.main.url(forResource: "buddi-hook", withExtension: "py") {
-            try? FileManager.default.removeItem(at: pythonScript)
-            try? FileManager.default.copyItem(at: bundled, to: pythonScript)
-            try? FileManager.default.setAttributes(
-                [.posixPermissions: 0o755],
-                ofItemAtPath: pythonScript.path
-            )
+            let needsInstall: Bool
+
+            if FileManager.default.fileExists(atPath: pythonScript.path) {
+                // Verify integrity: compare SHA-256 of installed vs bundled
+                let installedHash = sha256(of: pythonScript)
+                let bundledHash = sha256(of: bundled)
+                if installedHash != bundledHash {
+                    logger.warning("Hook script hash mismatch — reinstalling from bundle (possible tampering)")
+                    needsInstall = true
+                } else {
+                    needsInstall = false
+                }
+            } else {
+                needsInstall = true
+            }
+
+            if needsInstall {
+                try? FileManager.default.removeItem(at: pythonScript)
+                try? FileManager.default.copyItem(at: bundled, to: pythonScript)
+                // Owner-only executable (was 0o755 world-executable)
+                try? FileManager.default.setAttributes(
+                    [.posixPermissions: 0o700],
+                    ofItemAtPath: pythonScript.path
+                )
+            }
         }
 
         updateSettings(at: settings)
+    }
+
+    /// Compute SHA-256 hash of a file
+    private static func sha256(of url: URL) -> String? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        data.withUnsafeBytes { bytes in
+            _ = CC_SHA256(bytes.baseAddress, CC_LONG(data.count), &hash)
+        }
+        return hash.map { String(format: "%02x", $0) }.joined()
     }
 
     private static func updateSettings(at settingsURL: URL) {
@@ -44,7 +77,7 @@ struct HookInstaller {
         let python = detectPython()
         let command = "\(python) ~/.claude/hooks/buddi-hook.py"
         let hookEntry: [[String: Any]] = [["type": "command", "command": command]]
-        let hookEntryWithTimeout: [[String: Any]] = [["type": "command", "command": command, "timeout": 86400]]
+        let hookEntryWithTimeout: [[String: Any]] = [["type": "command", "command": command, "timeout": 300]]
         let withMatcher: [[String: Any]] = [["matcher": "*", "hooks": hookEntry]]
         let withMatcherAndTimeout: [[String: Any]] = [["matcher": "*", "hooks": hookEntryWithTimeout]]
         let withoutMatcher: [[String: Any]] = [["hooks": hookEntry]]
