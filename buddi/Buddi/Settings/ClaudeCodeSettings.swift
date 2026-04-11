@@ -11,6 +11,10 @@ struct ClaudeCodeSettings: View {
     @Default(.buddyEyeOverride) private var eyeOverride
     @Default(.buddyHatOverride) private var hatOverride
     @Default(.buddyRarityOverride) private var rarityOverride
+    @Default(.buddyChatProvider) private var chatProvider
+    @Default(.buddyChatAPIKey) private var chatAPIKey
+    @Default(.buddyChatEndpoint) private var chatEndpoint
+    @Default(.buddyChatModel) private var chatModel
 
     private var currentSpecies: BuddySpecies {
         buddyManager.effectiveIdentity.species
@@ -166,6 +170,55 @@ struct ClaudeCodeSettings: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+
+            Section {
+                Picker("Provider", selection: $chatProvider) {
+                    ForEach(ChatProvider.allCases) { provider in
+                        Text(provider.displayName).tag(provider.rawValue)
+                    }
+                }
+
+                SecureField("API Key", text: $chatAPIKey)
+                    .textFieldStyle(.roundedBorder)
+
+                let currentProvider = ChatProvider(rawValue: chatProvider) ?? .anthropic
+                let defaultModel = currentProvider.defaultModel
+
+                HStack {
+                    Text("Model")
+                    Spacer()
+                    TextField(defaultModel, text: $chatModel)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 180)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                if currentProvider == .local {
+                    HStack {
+                        Text("Endpoint")
+                        Spacer()
+                        TextField(currentProvider.defaultEndpoint, text: $chatEndpoint)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 250)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+
+                if !chatAPIKey.isEmpty {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Configured")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("Buddy Chat")
+            } footer: {
+                Text("API key for your buddy's chat. Supports Anthropic, OpenAI, Grok, or any OpenAI-compatible local endpoint (Ollama, LM Studio, etc.).")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             if FileManager.default.fileExists(atPath: "/Applications/cmux.app") {

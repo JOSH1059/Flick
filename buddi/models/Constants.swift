@@ -205,4 +205,10 @@ extension Defaults.Keys {
     static let buddyHatOverride = Key<String?>("buddyHatOverride", default: nil)
     static let buddyRarityOverride = Key<String?>("buddyRarityOverride", default: nil)
     static let notificationSound = Key<String>("notificationSound", default: "Pop")
+
+    // MARK: Buddy Chat
+    static let buddyChatProvider = Key<String>("buddyChatProvider", default: "anthropic")
+    static let buddyChatAPIKey = Key<String>("buddyChatAPIKey", default: "")
+    static let buddyChatEndpoint = Key<String>("buddyChatEndpoint", default: "")
+    static let buddyChatModel = Key<String>("buddyChatModel", default: "")
 }

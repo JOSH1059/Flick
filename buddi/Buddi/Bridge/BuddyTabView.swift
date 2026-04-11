@@ -11,6 +11,7 @@ struct BuddyTabView: View {
     @State private var lastPetTime: Date = .distantPast
     @State private var rapidPetCount: Int = 0
     @State private var showStatsCard = false
+    @State private var showBuddyChat = false
 
     private var isInChat: Bool {
         if case .chat = panelVM.contentType { return true }
@@ -84,14 +85,25 @@ struct BuddyTabView: View {
                 }
                 .help("Tap to pet!")
 
-                Text(BuddyManager.shared.effectiveIdentity.name
-                     ?? BuddyManager.shared.effectiveIdentity.species.rawValue.capitalized)
-                    .font(.caption2.weight(.medium).monospaced())
-                    .foregroundColor(Color(nsColor: BuddyManager.shared.effectiveIdentity.rarity.nsColor).opacity(0.8))
-                    .onTapGesture {
-                        showStatsCard.toggle()
+                HStack(spacing: 4) {
+                    Text(BuddyManager.shared.effectiveIdentity.name
+                         ?? BuddyManager.shared.effectiveIdentity.species.rawValue.capitalized)
+                        .font(.caption2.weight(.medium).monospaced())
+                        .foregroundColor(Color(nsColor: BuddyManager.shared.effectiveIdentity.rarity.nsColor).opacity(0.8))
+                        .onTapGesture {
+                            showStatsCard.toggle()
+                        }
+
+                    Button {
+                        showBuddyChat.toggle()
+                    } label: {
+                        Image(systemName: "bubble.left.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(.white.opacity(0.5))
                     }
-                    .help("View stats")
+                    .buttonStyle(.plain)
+                    .help("Chat with buddy")
+                }
 
                 if showStatsCard {
                     BuddyStatsCard()
@@ -122,12 +134,24 @@ struct BuddyTabView: View {
             }
             .frame(width: 100)
             .animation(.easeInOut(duration: 0.2), value: showStatsCard)
+            .animation(.easeInOut(duration: 0.25), value: showBuddyChat)
 
-            ClaudeInstancesView(
-                sessionMonitor: bridge.sessionMonitor,
-                viewModel: panelVM
-            )
-            .frame(maxWidth: .infinity)
+            if showBuddyChat {
+                BuddyChatView {
+                    withAnimation { showBuddyChat = false }
+                }
+                .frame(maxWidth: .infinity)
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .trailing).combined(with: .opacity)
+                ))
+            } else {
+                ClaudeInstancesView(
+                    sessionMonitor: bridge.sessionMonitor,
+                    viewModel: panelVM
+                )
+                .frame(maxWidth: .infinity)
+            }
         }
         .padding(.top, 10)
         .padding(.leading, 5)
