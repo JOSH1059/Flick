@@ -122,7 +122,7 @@ class HookSocketServer {
             // Fallback — should never happen on macOS
             return NSTemporaryDirectory() + "buddi.sock"
         }
-        let buddiDir = appSupport.appendingPathComponent("Buddi")
+        let buddiDir = appSupport.appendingPathComponent("Flick")
         try? FileManager.default.createDirectory(
             at: buddiDir,
             withIntermediateDirectories: true

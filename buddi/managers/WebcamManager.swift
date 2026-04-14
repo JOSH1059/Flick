@@ -34,7 +34,7 @@ class WebcamManager: NSObject, ObservableObject {
         }
     }
 
-    private let sessionQueue = DispatchQueue(label: "Buddi.WebcamManager.SessionQueue", qos: .userInitiated)
+    private let sessionQueue = DispatchQueue(label: "Flick.WebcamManager.SessionQueue", qos: .userInitiated)
     
     private var isCleaningUp: Bool = false
     
@@ -166,7 +166,7 @@ class WebcamManager: NSObject, ObservableObject {
                 
                 let videoInput = try AVCaptureDeviceInput(device: videoDevice)
                 guard session.canAddInput(videoInput) else {
-                    throw NSError(domain: "Buddi.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
+                    throw NSError(domain: "Flick.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
                 }
                 
                 session.beginConfiguration()

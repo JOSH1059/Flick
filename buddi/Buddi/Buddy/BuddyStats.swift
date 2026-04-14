@@ -12,7 +12,7 @@ final class BuddyStats: ObservableObject {
 
     private static let fileURL: URL = {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Buddi")
+            .appendingPathComponent("Flick")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("buddy-stats.json")
     }()

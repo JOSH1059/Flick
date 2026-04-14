@@ -1237,7 +1237,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = buddi/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Buddi;
+				INFOPLIST_KEY_CFBundleDisplayName = Flick;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -1290,7 +1290,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = buddi/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Buddi;
+				INFOPLIST_KEY_CFBundleDisplayName = Flick;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;

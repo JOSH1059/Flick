@@ -1,7 +1,11 @@
-Buddi - Claude Code Companion for macOS Notch
-Copyright (C) 2026 TalkValue
+Flick - AI Pet Notch Companion for macOS
+Copyright (C) 2026 Josh
 
-This program is based on boring.notch:
+Forked from Buddi:
+Copyright (C) 2026 TalkValue
+https://github.com/talkvalue/Buddi
+
+Buddi is based on boring.notch:
 Copyright (C) 2024 TheBoredTeam
 https://github.com/TheBoredTeam/boring.notch
 

@@ -59,7 +59,7 @@ struct ClaudeCodeSettings: View {
             } header: {
                 Text("Integration")
             } footer: {
-                Text("Forwards Claude Code events to Buddi via Unix socket.")
+                Text("Forwards Claude Code events to Flick via Unix socket.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -232,7 +232,7 @@ struct ClaudeCodeSettings: View {
                 } header: {
                     Text("cmux")
                 } footer: {
-                    Text("To send messages from Buddi to cmux sessions, set Socket Control Mode to \"Automation mode\" in cmux Settings > Automation. This allows Buddi to communicate with cmux's Unix socket.")
+                    Text("To send messages from Flick to cmux sessions, set Socket Control Mode to \"Automation mode\" in cmux Settings > Automation. This allows Flick to communicate with cmux's Unix socket.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

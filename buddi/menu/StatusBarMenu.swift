@@ -11,7 +11,7 @@ class BuddiStatusMenu: NSMenu {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Buddi")
+            button.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Flick")
             button.action = #selector(showMenu)
         }
         

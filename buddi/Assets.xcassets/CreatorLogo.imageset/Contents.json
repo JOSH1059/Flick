@@ -1,0 +1,7 @@
+{
+  "images" : [
+    { "filename" : "creator_logo.png", "idiom" : "universal", "scale" : "1x" },
+    { "filename" : "creator_logo@2x.png", "idiom" : "universal", "scale" : "2x" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}

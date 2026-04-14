@@ -101,7 +101,7 @@ final class UsageService: ObservableObject {
 
     private static let cacheURL: URL = {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("Buddi", isDirectory: true)
+        let dir = appSupport.appendingPathComponent("Flick", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("usage-cache.json")
     }()

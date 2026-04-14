@@ -877,9 +877,20 @@ struct About: View {
             }
             VStack(spacing: 0) {
                 Divider()
+                HStack(spacing: 6) {
+                    Image("CreatorLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 20)
+                    Text("Flick by Josh")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .padding(.top, 6)
                 Text("Based on Buddi by TalkValue (GPL-3.0)")
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .padding(.top, 5)
+                    .padding(.top, 2)
                     .padding(.bottom, 7)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 10)
@@ -1359,7 +1370,7 @@ struct Appearance: View {
 
             Section {
                 Defaults.Toggle(key: .showMirror) {
-                    Text("Enable Buddi mirror")
+                    Text("Enable Flick mirror")
                 }
                     .disabled(!checkVideoInput())
                 Picker("Mirror shape", selection: $mirrorShape) {

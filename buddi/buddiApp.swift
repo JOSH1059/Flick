@@ -19,7 +19,7 @@ struct BuddiApp: App {
     init() {}
 
     var body: some Scene {
-        MenuBarExtra("Buddi", systemImage: "sparkle", isInserted: $showMenuBarIcon) {
+        MenuBarExtra("Flick", image: "MenuBarIcon", isInserted: $showMenuBarIcon) {
             Button("Settings") {
                 DispatchQueue.main.async {
                     SettingsWindowController.shared.showWindow()
@@ -27,7 +27,7 @@ struct BuddiApp: App {
             }
             .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
             Divider()
-            Button("Restart Buddi") {
+            Button("Restart Flick") {
                 ApplicationRelauncher.restart()
             }
             Button("Quit", role: .destructive) {

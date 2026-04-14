@@ -26,7 +26,7 @@ struct WelcomeView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                         .padding(.bottom, 8)
-                    Text("Buddi")
+                    Text("Flick")
                         .font(.system(.largeTitle, design: .default))
                         .fontWeight(.semibold)
                     Text("Your Claude Code Companion")
