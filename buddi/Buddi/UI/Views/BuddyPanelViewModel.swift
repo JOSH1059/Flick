@@ -18,6 +18,7 @@ enum NotchContentType: Equatable {
 @MainActor
 class BuddyPanelViewModel: ObservableObject {
     @Published var contentType: NotchContentType = .instances
+    @Published var showBuddyChat: Bool = false
 
     private var currentChatSession: SessionState?
 

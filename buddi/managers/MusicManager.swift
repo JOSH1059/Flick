@@ -16,7 +16,7 @@ let defaultImage: NSImage = .init(
 
 class MusicManager: ObservableObject {
     // MARK: - Properties
-    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "Music")
+    private static let logger = os.Logger(subsystem: "com.josh.flick", category: "Music")
     static let shared = MusicManager()
     private var cancellables = Set<AnyCancellable>()
     private var controllerCancellables = Set<AnyCancellable>()

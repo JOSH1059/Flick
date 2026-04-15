@@ -12,7 +12,7 @@ import os
 import SwiftUI
 
 final class YouTubeMusicController: MediaControllerProtocol {
-    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "YouTubeMusic")
+    private static let logger = os.Logger(subsystem: "com.josh.flick", category: "YouTubeMusic")
 
     // MARK: - Published Properties
     @Published var playbackState = PlaybackState(

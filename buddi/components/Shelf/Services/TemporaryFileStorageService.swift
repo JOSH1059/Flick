@@ -17,7 +17,7 @@ enum TempFileType {
 
 class TemporaryFileStorageService {
     static let shared = TemporaryFileStorageService()
-    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "TempStorage")
+    private static let logger = os.Logger(subsystem: "com.josh.flick", category: "TempStorage")
     
     // MARK: - Public Interface
     

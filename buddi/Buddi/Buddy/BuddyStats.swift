@@ -1,7 +1,7 @@
 import Foundation
 import os
 
-private let logger = os.Logger(subsystem: "com.splab.buddi", category: "BuddyStats")
+private let logger = os.Logger(subsystem: "com.josh.flick", category: "BuddyStats")
 
 /// Persistent stats for the buddy pet. Tracks XP, level, affection, and lifetime activity.
 @MainActor

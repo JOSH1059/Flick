@@ -2,7 +2,7 @@ import Foundation
 import os
 import SwiftUI
 
-private let buddiLogger = os.Logger(subsystem: "com.splab.buddi", category: "App")
+private let buddiLogger = os.Logger(subsystem: "com.josh.flick", category: "App")
 
 enum LogCategory: String {
     case lifecycle = "lifecycle"

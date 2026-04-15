@@ -11,7 +11,7 @@ import Foundation
 import os
 
 /// Logger for hook socket server
-private let logger = os.Logger(subsystem: "com.splab.buddi", category: "Hooks")
+private let logger = os.Logger(subsystem: "com.josh.flick", category: "Hooks")
 
 /// Event received from Claude Code hooks
 struct HookEvent: Codable, Sendable {
@@ -134,7 +134,7 @@ class HookSocketServer {
     private var acceptSource: DispatchSourceRead?
     private var eventHandler: HookEventHandler?
     private var permissionFailureHandler: PermissionFailureHandler?
-    private let queue = DispatchQueue(label: "com.buddi.socket", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "com.flick.socket", qos: .userInitiated)
 
     /// Pending permission requests indexed by toolUseId
     private var pendingPermissions: [String: PendingPermission] = [:]

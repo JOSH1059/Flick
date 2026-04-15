@@ -9,7 +9,7 @@ import CommonCrypto
 import Foundation
 import os
 
-private let logger = os.Logger(subsystem: "com.splab.buddi", category: "HookInstaller")
+private let logger = os.Logger(subsystem: "com.josh.flick", category: "HookInstaller")
 
 struct HookInstaller {
 

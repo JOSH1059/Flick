@@ -12,9 +12,10 @@ struct ClaudeCodeSettings: View {
     @Default(.buddyHatOverride) private var hatOverride
     @Default(.buddyRarityOverride) private var rarityOverride
     @Default(.buddyChatProvider) private var chatProvider
-    @Default(.buddyChatAPIKey) private var chatAPIKey
+    @State private var chatAPIKey: String = BuddyChatService.readAPIKey() ?? ""
     @Default(.buddyChatEndpoint) private var chatEndpoint
     @Default(.buddyChatModel) private var chatModel
+    @Default(.buddyCustomPersonality) private var customPersonality
 
     private var currentSpecies: BuddySpecies {
         buddyManager.effectiveIdentity.species
@@ -181,6 +182,9 @@ struct ClaudeCodeSettings: View {
 
                 SecureField("API Key", text: $chatAPIKey)
                     .textFieldStyle(.roundedBorder)
+                    .onChange(of: chatAPIKey) { _, newValue in
+                        BuddyChatService.saveAPIKey(newValue)
+                    }
 
                 let currentProvider = ChatProvider(rawValue: chatProvider) ?? .anthropic
                 let defaultModel = currentProvider.defaultModel
@@ -217,6 +221,18 @@ struct ClaudeCodeSettings: View {
                 Text("Buddy Chat")
             } footer: {
                 Text("API key for your buddy's chat. Supports Anthropic, OpenAI, Grok, or any OpenAI-compatible local endpoint (Ollama, LM Studio, etc.).")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                TextField("e.g. You love puns. You're scared of semicolons.", text: $customPersonality, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(3...6)
+            } header: {
+                Text("Custom Personality")
+            } footer: {
+                Text("Extra personality instructions appended to your buddy's base species personality. Leave blank to use defaults.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

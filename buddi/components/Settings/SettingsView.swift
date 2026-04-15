@@ -825,6 +825,7 @@ func lighterColor(from nsColor: NSColor, amount: CGFloat = 0.14) -> Color {
 
 struct About: View {
     @State private var showBuildNumber: Bool = false
+    @State private var showResetConfirm: Bool = false
     @Environment(\.openWindow) var openWindow
     var body: some View {
         VStack {
@@ -853,6 +854,36 @@ struct About: View {
                     }
                 } header: {
                     Text("Version info")
+                }
+
+                Section {
+                    Button(role: .destructive) {
+                        showResetConfirm = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "arrow.counterclockwise")
+                            Text("Reset Everything")
+                        }
+                    }
+                    .alert("Reset Flick?", isPresented: $showResetConfirm) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Reset", role: .destructive) {
+                            // Clear all UserDefaults
+                            if let domain = Bundle.main.bundleIdentifier {
+                                UserDefaults.standard.removePersistentDomain(forName: domain)
+                            }
+                            // Clear buddy chat API key from Keychain
+                            BuddyChatService.deleteAPIKey()
+                            // Re-trigger onboarding
+                            BuddiViewCoordinator.shared.firstLaunch = true
+                            // Restart the app
+                            ApplicationRelauncher.restart()
+                        }
+                    } message: {
+                        Text("This will clear all settings, buddy stats, and API keys, and show the onboarding again. This cannot be undone.")
+                    }
+                } header: {
+                    Text("Reset")
                 }
 
                 HStack(spacing: 30) {

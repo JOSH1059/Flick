@@ -14,7 +14,7 @@ import ObjectiveC
 
 @MainActor
 final class ShelfItemViewModel: ObservableObject {
-    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem")
+    private static let logger = os.Logger(subsystem: "com.josh.flick", category: "ShelfItem")
     @Published private(set) var item: ShelfItem
     @Published var thumbnail: NSImage?
     @Published var isDropTargeted: Bool = false
@@ -449,7 +449,7 @@ final class ShelfItemViewModel: ObservableObject {
                                 try await NSWorkspace.shared.open(allSelectedURLs, withApplicationAt: appURL, configuration: config)
                             }
                         } catch {
-                            os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to open with application: \(error.localizedDescription, privacy: .private)")
+                            os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to open with application: \(error.localizedDescription, privacy: .private)")
                         }
                 }
                 return
@@ -574,7 +574,7 @@ final class ShelfItemViewModel: ObservableObject {
                             }
                         }
                     } catch {
-                        os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Compress failed: \(error.localizedDescription, privacy: .private)")
+                        os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Compress failed: \(error.localizedDescription, privacy: .private)")
                     }
                 }
                 
@@ -725,10 +725,10 @@ final class ShelfItemViewModel: ObservableObject {
                             if alwaysCheckbox.state == .on, let bundleID = Bundle(url: appURL)?.bundleIdentifier {
                                 if let contentType = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType {
                                     let status = LSSetDefaultRoleHandlerForContentType(contentType.identifier as CFString, LSRolesMask.all, bundleID as CFString)
-                                    if status != noErr { os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").warning("Failed to set default handler for \(contentType.identifier, privacy: .public): \(status, privacy: .public)") }
+                                    if status != noErr { os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").warning("Failed to set default handler for \(contentType.identifier, privacy: .public): \(status, privacy: .public)") }
                                 } else if let scheme = fileURL.scheme {
                                     let status = LSSetDefaultHandlerForURLScheme(scheme as CFString, bundleID as CFString)
-                                    if status != noErr { os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").warning("Failed to set default handler for scheme \(scheme, privacy: .public): \(status, privacy: .public)") }
+                                    if status != noErr { os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").warning("Failed to set default handler for scheme \(scheme, privacy: .public): \(status, privacy: .public)") }
                                 }
                             }
 
@@ -740,7 +740,7 @@ final class ShelfItemViewModel: ObservableObject {
                                 try await NSWorkspace.shared.open([fileURL], withApplicationAt: appURL, configuration: config)
                             }
                         } catch {
-                            os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to open with application: \(error.localizedDescription, privacy: .private)")
+                            os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to open with application: \(error.localizedDescription, privacy: .private)")
                         }
                     }
                 }
@@ -776,7 +776,7 @@ final class ShelfItemViewModel: ObservableObject {
                                         ShelfStateViewModel.shared.updateBookmark(for: item, bookmark: newBookmark.data)
                                     }
                                 } catch {
-                                    os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to rename file: \(error.localizedDescription, privacy: .private)")
+                                    os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to rename file: \(error.localizedDescription, privacy: .private)")
                                 }
                                 if didStart { fileURL.stopAccessingSecurityScopedResource() }
                             }
@@ -812,7 +812,7 @@ final class ShelfItemViewModel: ObservableObject {
                         }
                     }
                 } catch {
-                    os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to remove background: \(error.localizedDescription, privacy: .private)")
+                    os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to remove background: \(error.localizedDescription, privacy: .private)")
                     await showErrorAlert(title: "Background Removal Failed", message: error.localizedDescription)
                 }
             }
@@ -842,7 +842,7 @@ final class ShelfItemViewModel: ObservableObject {
                         }
                     }
                 } catch {
-                    os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to create PDF: \(error.localizedDescription, privacy: .private)")
+                    os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to create PDF: \(error.localizedDescription, privacy: .private)")
                     await showErrorAlert(title: "PDF Creation Failed", message: error.localizedDescription)
                 }
             }
@@ -1050,7 +1050,7 @@ final class ShelfItemViewModel: ObservableObject {
                             }
                         }
                     } catch {
-                        os.Logger(subsystem: "com.splab.buddi", category: "ShelfItem").error("Failed to convert image: \(error.localizedDescription, privacy: .private)")
+                        os.Logger(subsystem: "com.josh.flick", category: "ShelfItem").error("Failed to convert image: \(error.localizedDescription, privacy: .private)")
                         showErrorAlert(title: "Image Conversion Failed", message: error.localizedDescription)
                     }
                 }

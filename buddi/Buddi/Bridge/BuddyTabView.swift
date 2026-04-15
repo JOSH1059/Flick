@@ -11,7 +11,6 @@ struct BuddyTabView: View {
     @State private var lastPetTime: Date = .distantPast
     @State private var rapidPetCount: Int = 0
     @State private var showStatsCard = false
-    @State private var showBuddyChat = false
 
     private var isInChat: Bool {
         if case .chat = panelVM.contentType { return true }
@@ -95,7 +94,7 @@ struct BuddyTabView: View {
                         }
 
                     Button {
-                        showBuddyChat.toggle()
+                        panelVM.showBuddyChat.toggle()
                     } label: {
                         Image(systemName: "bubble.left.fill")
                             .font(.system(size: 8))
@@ -134,11 +133,11 @@ struct BuddyTabView: View {
             }
             .frame(width: 100)
             .animation(.easeInOut(duration: 0.2), value: showStatsCard)
-            .animation(.easeInOut(duration: 0.25), value: showBuddyChat)
+            .animation(.easeInOut(duration: 0.25), value: panelVM.showBuddyChat)
 
-            if showBuddyChat {
+            if panelVM.showBuddyChat {
                 BuddyChatView {
-                    withAnimation { showBuddyChat = false }
+                    withAnimation { panelVM.showBuddyChat = false }
                 }
                 .frame(maxWidth: .infinity)
                 .transition(.asymmetric(

@@ -1,8 +1,9 @@
 import Defaults
 import Foundation
 import os
+import Security
 
-private let logger = os.Logger(subsystem: "com.splab.buddi", category: "BuddyChat")
+private let logger = os.Logger(subsystem: "com.josh.flick", category: "BuddyChat")
 
 /// Chat provider configuration
 enum ChatProvider: String, CaseIterable, Identifiable {
@@ -25,7 +26,7 @@ enum ChatProvider: String, CaseIterable, Identifiable {
     var defaultModel: String {
         switch self {
         case .anthropic: "claude-sonnet-4-6"
-        case .openai: "gpt-4o-mini"
+        case .openai: "gpt-5-nano"
         case .grok: "grok-3-mini-fast"
         case .local: "default"
         }
@@ -54,8 +55,11 @@ final class BuddyChatService: ObservableObject {
 
     private let maxTokens = 256
 
+    private static let keychainService = "com.flick.buddy-chat"
+    private static let keychainAccount = "api-key"
+
     var isConfigured: Bool {
-        !Defaults[.buddyChatAPIKey].isEmpty
+        Self.readAPIKey() != nil
     }
 
     private var provider: ChatProvider {
@@ -73,7 +77,50 @@ final class BuddyChatService: ObservableObject {
     }
 
     private var apiKey: String {
-        Defaults[.buddyChatAPIKey]
+        Self.readAPIKey() ?? ""
+    }
+
+    // MARK: - Keychain
+
+    static func readAPIKey() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecUseAuthenticationUI as String: kSecUseAuthenticationUISkip
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let key = String(data: data, encoding: .utf8),
+              !key.isEmpty
+        else { return nil }
+        return key
+    }
+
+    static func saveAPIKey(_ key: String) {
+        deleteAPIKey()
+        guard !key.isEmpty else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+            kSecValueData as String: key.data(using: .utf8)!
+        ]
+        SecItemAdd(query as CFDictionary, nil)
+    }
+
+    static func deleteAPIKey() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 
     private init() {}
@@ -94,7 +141,11 @@ final class BuddyChatService: ObservableObject {
         }
 
         let identity = BuddyManager.shared.effectiveIdentity
-        let systemPrompt = Self.personalityPrompt(for: identity)
+        var systemPrompt = Self.personalityPrompt(for: identity)
+        let customPersonality = Defaults[.buddyCustomPersonality]
+        if !customPersonality.isEmpty {
+            systemPrompt += "\n\nAdditional personality traits from your owner: \(customPersonality)"
+        }
         let recentMessages = messages.suffix(10)
 
         do {
@@ -104,13 +155,17 @@ final class BuddyChatService: ObservableObject {
             } else {
                 response = try await sendOpenAICompatible(system: systemPrompt, messages: recentMessages)
             }
-            messages.append(BuddyChatMessage(role: .assistant, content: response))
-            BuddyStats.shared.recordBuddyChat()
+            if response.isEmpty {
+                messages.append(BuddyChatMessage(role: .assistant, content: "*tilts head* I got nothing back..."))
+            } else {
+                messages.append(BuddyChatMessage(role: .assistant, content: response))
+                BuddyStats.shared.recordBuddyChat()
+            }
         } catch {
             logger.error("Buddy chat failed: \(error.localizedDescription, privacy: .private)")
             messages.append(BuddyChatMessage(
                 role: .assistant,
-                content: "*looks sad* I couldn't reach the cloud... try again?"
+                content: "*looks sad* (\(error.localizedDescription))"
             ))
         }
     }
@@ -143,7 +198,7 @@ final class BuddyChatService: ObservableObject {
         request.timeoutInterval = 30
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let content = json["content"] as? [[String: Any]],
@@ -164,9 +219,10 @@ final class BuddyChatService: ObservableObject {
             apiMessages.append(["role": msg.role.rawValue, "content": msg.content])
         }
 
+        let tokenKey = (provider == .openai) ? "max_completion_tokens" : "max_tokens"
         let body: [String: Any] = [
             "model": model,
-            "max_tokens": maxTokens,
+            tokenKey: maxTokens,
             "messages": apiMessages
         ]
 
@@ -178,38 +234,83 @@ final class BuddyChatService: ObservableObject {
         request.timeoutInterval = 30
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let choices = json["choices"] as? [[String: Any]],
               let first = choices.first,
-              let message = first["message"] as? [String: Any],
-              let text = message["content"] as? String
-        else { throw ChatError.invalidResponse }
+              let message = first["message"] as? [String: Any]
+        else {
+            let raw = String(data: data.prefix(500), encoding: .utf8) ?? "?"
+            throw ChatError.httpError(200, "Unexpected response: \(raw.prefix(200))")
+        }
 
-        return text
+        // Standard: message.content as string
+        if let text = message["content"] as? String, !text.isEmpty {
+            return text
+        }
+
+        // Reasoning models: content might be an array of content parts
+        if let contentParts = message["content"] as? [[String: Any]] {
+            let texts = contentParts.compactMap { part -> String? in
+                if part["type"] as? String == "text" {
+                    return part["text"] as? String
+                }
+                return nil
+            }
+            if !texts.isEmpty {
+                return texts.joined(separator: "\n")
+            }
+        }
+
+        // Refusal
+        if let refusal = message["refusal"] as? String, !refusal.isEmpty {
+            return "*shakes head* \(refusal)"
+        }
+
+        // Content is null — check for reasoning_content (o-series models)
+        if let reasoning = message["reasoning_content"] as? String, !reasoning.isEmpty {
+            return reasoning
+        }
+
+        // Dump the full message for debugging
+        if let msgData = try? JSONSerialization.data(withJSONObject: message, options: .prettyPrinted),
+           let msgStr = String(data: msgData, encoding: .utf8) {
+            throw ChatError.httpError(200, "Could not parse message: \(msgStr.prefix(400))")
+        }
+        throw ChatError.httpError(200, "Empty response from model")
     }
 
     // MARK: - Helpers
 
-    private func validateResponse(_ response: URLResponse) throws {
+    private func validateResponse(_ response: URLResponse, data: Data) throws {
         guard let http = response as? HTTPURLResponse else {
             throw ChatError.invalidResponse
         }
         guard http.statusCode == 200 else {
-            logger.warning("Chat API returned \(http.statusCode, privacy: .public)")
-            throw ChatError.httpError(http.statusCode)
+            // Try to extract error message from response body
+            var detail = ""
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                if let error = json["error"] as? [String: Any], let msg = error["message"] as? String {
+                    detail = msg
+                } else if let msg = json["message"] as? String {
+                    detail = msg
+                }
+            }
+            logger.warning("Chat API returned \(http.statusCode, privacy: .public): \(detail, privacy: .private)")
+            throw ChatError.httpError(http.statusCode, detail)
         }
     }
 
     enum ChatError: LocalizedError {
         case invalidResponse
-        case httpError(Int)
+        case httpError(Int, String)
 
         var errorDescription: String? {
             switch self {
             case .invalidResponse: "Invalid response from API"
-            case .httpError(let code): "HTTP \(code)"
+            case .httpError(let code, let detail):
+                detail.isEmpty ? "HTTP \(code)" : "HTTP \(code): \(detail)"
             }
         }
     }

@@ -17,7 +17,7 @@ protocol CalendarServiceProviding {
 }
 
 class CalendarService: CalendarServiceProviding {
-    private static let logger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.buddi", category: "CalendarService")
+    private static let logger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.josh.flick", category: "CalendarService")
     private let store = EKEventStore()
     
     @MainActor

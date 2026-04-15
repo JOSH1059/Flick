@@ -15,7 +15,7 @@ import Sparkle
 // MARK: - NotchMenuView
 
 struct NotchMenuView: View {
-    private static let logger = os.Logger(subsystem: "com.splab.buddi", category: "NotchMenu")
+    private static let logger = os.Logger(subsystem: "com.josh.flick", category: "NotchMenu")
     @ObservedObject var viewModel: BuddyPanelViewModel
     @ObservedObject private var updateManager = UpdateManager.shared
     @ObservedObject private var screenSelector = ScreenSelector.shared

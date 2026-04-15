@@ -471,7 +471,7 @@ struct ChatView: View {
     }
 
     private func sendToSession(_ text: String) async {
-        let logger = os.Logger(subsystem: "com.splab.buddi", category: "ChatSend")
+        let logger = os.Logger(subsystem: "com.josh.flick", category: "ChatSend")
         logger.debug("sendToSession: isInTmux=\(session.isInTmux) isInCmux=\(session.isInCmux) tty=\(session.tty ?? "nil") pid=\(session.pid ?? 0) cmuxWS=\(session.cmuxWorkspaceRef ?? "nil") cmuxSurf=\(session.cmuxSurfaceRef ?? "nil")")
 
         guard session.isInMultiplexer else {

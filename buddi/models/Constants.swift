@@ -72,7 +72,7 @@ extension Defaults.Keys {
     static let menubarIcon = Key<Bool>("menubarIcon", default: true)
     static let showOnAllDisplays = Key<Bool>("showOnAllDisplays", default: false)
     static let automaticallySwitchDisplay = Key<Bool>("automaticallySwitchDisplay", default: true)
-    static let releaseName = Key<String>("releaseName", default: "Duck")
+    static let releaseName = Key<String>("releaseName", default: "Pixel Bug")
     
     // MARK: Behavior
     static let minimumHoverDuration = Key<TimeInterval>("minimumHoverDuration", default: 0.3)
@@ -208,7 +208,8 @@ extension Defaults.Keys {
 
     // MARK: Buddy Chat
     static let buddyChatProvider = Key<String>("buddyChatProvider", default: "anthropic")
-    static let buddyChatAPIKey = Key<String>("buddyChatAPIKey", default: "")
+    // API key stored in Keychain via BuddyChatService, not in Defaults
     static let buddyChatEndpoint = Key<String>("buddyChatEndpoint", default: "")
+    static let buddyCustomPersonality = Key<String>("buddyCustomPersonality", default: "")
     static let buddyChatModel = Key<String>("buddyChatModel", default: "")
 }
