@@ -16,37 +16,6 @@ struct BuddyChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Chat with \(buddyName)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.white)
-                Spacer()
-                if !chatService.messages.isEmpty {
-                    Button {
-                        chatService.clearHistory()
-                    } label: {
-                        Image(systemName: "trash")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Clear chat")
-                }
-                Button {
-                    onClose()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-
-            Divider().background(Color.white.opacity(0.1))
-
             // Messages
             ScrollViewReader { proxy in
                 ScrollView {
@@ -73,12 +42,24 @@ struct BuddyChatView: View {
                     }
                 }
             }
-            .frame(maxHeight: 200)
+            .frame(maxHeight: .infinity)
 
             Divider().background(Color.white.opacity(0.1))
 
             // Input
             HStack(spacing: 6) {
+                if !chatService.messages.isEmpty {
+                    Button {
+                        chatService.clearHistory()
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Clear chat")
+                }
+
                 TextField("Say something...", text: $inputText)
                     .textFieldStyle(.plain)
                     .font(.caption)

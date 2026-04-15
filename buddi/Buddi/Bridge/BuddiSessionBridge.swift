@@ -36,14 +36,18 @@ final class BuddiSessionBridge: ObservableObject {
             }
             .store(in: &cancellables)
 
-        panelViewModel.$contentType
-            .sink { contentType in
+        Publishers.CombineLatest(panelViewModel.$contentType, panelViewModel.$showBuddyChat)
+            .sink { contentType, showBuddyChat in
                 let height: CGFloat
-                switch contentType {
-                case .chat:
-                    height = 500
-                case .instances, .menu:
-                    height = openNotchSize.height
+                if showBuddyChat {
+                    height = 250
+                } else {
+                    switch contentType {
+                    case .chat:
+                        height = 500
+                    case .instances, .menu:
+                        height = openNotchSize.height
+                    }
                 }
 
                 if BuddiViewCoordinator.shared.buddyPanelHeight != height {

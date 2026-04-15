@@ -76,11 +76,7 @@ struct BuddyTabView: View {
                     fontSize: 8
                 )
                 .onTapGesture {
-                    if showStatsCard {
-                        handlePet()
-                    } else {
-                        showStatsCard = true
-                    }
+                    handlePet()
                 }
                 .help("Tap to pet!")
 
@@ -91,10 +87,12 @@ struct BuddyTabView: View {
                         .foregroundColor(Color(nsColor: BuddyManager.shared.effectiveIdentity.rarity.nsColor).opacity(0.8))
                         .onTapGesture {
                             showStatsCard.toggle()
+                            panelVM.showBuddyChat = false
                         }
 
                     Button {
                         panelVM.showBuddyChat.toggle()
+                        showStatsCard = false
                     } label: {
                         Image(systemName: "bubble.left.fill")
                             .font(.system(size: 8))
@@ -104,15 +102,7 @@ struct BuddyTabView: View {
                     .help("Chat with buddy")
                 }
 
-                if showStatsCard {
-                    BuddyStatsCard()
-                        .transition(.asymmetric(
-                            insertion: .scale(scale: 0.8).combined(with: .opacity),
-                            removal: .opacity
-                        ))
-                }
-
-                if usageService.isAvailable && !showStatsCard {
+                if usageService.isAvailable {
                     if let fh = usageService.usage.fiveHour {
                         UsageBar(
                             label: "Session",
@@ -132,10 +122,17 @@ struct BuddyTabView: View {
                 }
             }
             .frame(width: 100)
-            .animation(.easeInOut(duration: 0.2), value: showStatsCard)
             .animation(.easeInOut(duration: 0.25), value: panelVM.showBuddyChat)
 
-            if panelVM.showBuddyChat {
+            if showStatsCard {
+                BuddyStatsCard()
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .padding(.top, 4)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .opacity
+                    ))
+            } else if panelVM.showBuddyChat {
                 BuddyChatView {
                     withAnimation { panelVM.showBuddyChat = false }
                 }

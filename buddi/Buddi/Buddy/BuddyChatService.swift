@@ -1,7 +1,6 @@
 import Defaults
 import Foundation
 import os
-import Security
 
 private let logger = os.Logger(subsystem: "com.josh.flick", category: "BuddyChat")
 
@@ -35,7 +34,7 @@ enum ChatProvider: String, CaseIterable, Identifiable {
     var defaultEndpoint: String {
         switch self {
         case .anthropic: "https://api.anthropic.com/v1/messages"
-        case .openai: "https://api.openai.com/v1/chat/completions"
+        case .openai: "https://api.openai.com/v1/responses"
         case .grok: "https://api.x.ai/v1/chat/completions"
         case .local: "http://localhost:1234/v1/chat/completions"
         }
@@ -55,8 +54,12 @@ final class BuddyChatService: ObservableObject {
 
     private let maxTokens = 256
 
-    private static let keychainService = "com.flick.buddy-chat"
-    private static let keychainAccount = "api-key"
+    private static let keyFileURL: URL = {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Flick")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent(".chat-key")
+    }()
 
     var isConfigured: Bool {
         Self.readAPIKey() != nil
@@ -80,47 +83,29 @@ final class BuddyChatService: ObservableObject {
         Self.readAPIKey() ?? ""
     }
 
-    // MARK: - Keychain
+    // MARK: - API Key Storage (file-based, owner-only permissions)
 
     static func readAPIKey() -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecUseAuthenticationUI as String: kSecUseAuthenticationUISkip
-        ]
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        guard status == errSecSuccess,
-              let data = result as? Data,
-              let key = String(data: data, encoding: .utf8),
+        guard let data = try? Data(contentsOf: keyFileURL),
+              let key = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
               !key.isEmpty
         else { return nil }
         return key
     }
 
     static func saveAPIKey(_ key: String) {
-        deleteAPIKey()
-        guard !key.isEmpty else { return }
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
-            kSecValueData as String: key.data(using: .utf8)!
-        ]
-        SecItemAdd(query as CFDictionary, nil)
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            deleteAPIKey()
+            return
+        }
+        try? trimmed.data(using: .utf8)?.write(to: keyFileURL, options: .atomic)
+        // Owner-only read/write
+        chmod(keyFileURL.path, 0o600)
     }
 
     static func deleteAPIKey() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount
-        ]
-        SecItemDelete(query as CFDictionary)
+        try? FileManager.default.removeItem(at: keyFileURL)
     }
 
     private init() {}
@@ -150,10 +135,13 @@ final class BuddyChatService: ObservableObject {
 
         do {
             let response: String
-            if provider.isAnthropicFormat {
+            switch provider {
+            case .anthropic:
                 response = try await sendAnthropic(system: systemPrompt, messages: recentMessages)
-            } else {
-                response = try await sendOpenAICompatible(system: systemPrompt, messages: recentMessages)
+            case .openai:
+                response = try await sendOpenAIResponses(system: systemPrompt, messages: recentMessages)
+            case .grok, .local:
+                response = try await sendChatCompletions(system: systemPrompt, messages: recentMessages)
             }
             if response.isEmpty {
                 messages.append(BuddyChatMessage(role: .assistant, content: "*tilts head* I got nothing back..."))
@@ -209,9 +197,64 @@ final class BuddyChatService: ObservableObject {
         return text
     }
 
-    // MARK: - OpenAI-Compatible API (OpenAI, Grok, Local)
+    // MARK: - OpenAI Responses API (works with all OpenAI models)
 
-    private func sendOpenAICompatible(system: String, messages: ArraySlice<BuddyChatMessage>) async throws -> String {
+    private func sendOpenAIResponses(system: String, messages: ArraySlice<BuddyChatMessage>) async throws -> String {
+        // Build input array: system instruction + conversation messages
+        var input: [[String: Any]] = [
+            ["role": "developer", "content": system]
+        ]
+        for msg in messages {
+            input.append(["role": msg.role.rawValue, "content": msg.content])
+        }
+
+        let body: [String: Any] = [
+            "model": model,
+            "input": input
+        ]
+
+        var request = URLRequest(url: URL(string: endpoint)!)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 30
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try validateResponse(response, data: data)
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ChatError.invalidResponse
+        }
+
+        // Responses API returns output_text at top level
+        if let text = json["output_text"] as? String, !text.isEmpty {
+            return text
+        }
+
+        // Fallback: check output array for message items
+        if let output = json["output"] as? [[String: Any]] {
+            for item in output {
+                if item["type"] as? String == "message",
+                   let content = item["content"] as? [[String: Any]] {
+                    let texts = content.compactMap { part -> String? in
+                        if part["type"] as? String == "output_text" || part["type"] as? String == "text" {
+                            return part["text"] as? String
+                        }
+                        return nil
+                    }
+                    if !texts.isEmpty { return texts.joined() }
+                }
+            }
+        }
+
+        let raw = String(data: data.prefix(500), encoding: .utf8) ?? "?"
+        throw ChatError.httpError(200, "Unexpected response: \(raw.prefix(300))")
+    }
+
+    // MARK: - Generic OpenAI-Compatible Chat Completions (Grok, Local)
+
+    private func sendChatCompletions(system: String, messages: ArraySlice<BuddyChatMessage>) async throws -> String {
         var apiMessages: [[String: String]] = [
             ["role": "system", "content": system]
         ]
@@ -219,10 +262,9 @@ final class BuddyChatService: ObservableObject {
             apiMessages.append(["role": msg.role.rawValue, "content": msg.content])
         }
 
-        let tokenKey = (provider == .openai) ? "max_completion_tokens" : "max_tokens"
         let body: [String: Any] = [
             "model": model,
-            tokenKey: maxTokens,
+            "max_tokens": maxTokens,
             "messages": apiMessages
         ]
 
@@ -239,46 +281,15 @@ final class BuddyChatService: ObservableObject {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let choices = json["choices"] as? [[String: Any]],
               let first = choices.first,
-              let message = first["message"] as? [String: Any]
+              let message = first["message"] as? [String: Any],
+              let text = message["content"] as? String,
+              !text.isEmpty
         else {
             let raw = String(data: data.prefix(500), encoding: .utf8) ?? "?"
-            throw ChatError.httpError(200, "Unexpected response: \(raw.prefix(200))")
+            throw ChatError.httpError(200, "Unexpected response: \(raw.prefix(300))")
         }
 
-        // Standard: message.content as string
-        if let text = message["content"] as? String, !text.isEmpty {
-            return text
-        }
-
-        // Reasoning models: content might be an array of content parts
-        if let contentParts = message["content"] as? [[String: Any]] {
-            let texts = contentParts.compactMap { part -> String? in
-                if part["type"] as? String == "text" {
-                    return part["text"] as? String
-                }
-                return nil
-            }
-            if !texts.isEmpty {
-                return texts.joined(separator: "\n")
-            }
-        }
-
-        // Refusal
-        if let refusal = message["refusal"] as? String, !refusal.isEmpty {
-            return "*shakes head* \(refusal)"
-        }
-
-        // Content is null — check for reasoning_content (o-series models)
-        if let reasoning = message["reasoning_content"] as? String, !reasoning.isEmpty {
-            return reasoning
-        }
-
-        // Dump the full message for debugging
-        if let msgData = try? JSONSerialization.data(withJSONObject: message, options: .prettyPrinted),
-           let msgStr = String(data: msgData, encoding: .utf8) {
-            throw ChatError.httpError(200, "Could not parse message: \(msgStr.prefix(400))")
-        }
-        throw ChatError.httpError(200, "Empty response from model")
+        return text
     }
 
     // MARK: - Helpers
