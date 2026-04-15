@@ -40,7 +40,7 @@ final class BuddiSessionBridge: ObservableObject {
             .sink { contentType, showBuddyChat in
                 let height: CGFloat
                 if showBuddyChat {
-                    height = 250
+                    height = 350
                 } else {
                     switch contentType {
                     case .chat:

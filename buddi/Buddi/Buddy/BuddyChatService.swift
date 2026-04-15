@@ -134,20 +134,26 @@ final class BuddyChatService: ObservableObject {
         let recentMessages = messages.suffix(10)
 
         do {
-            let response: String
             switch provider {
             case .anthropic:
-                response = try await sendAnthropic(system: systemPrompt, messages: recentMessages)
+                let response = try await sendAnthropic(system: systemPrompt, messages: recentMessages)
+                if response.isEmpty {
+                    messages.append(BuddyChatMessage(role: .assistant, content: "*tilts head* I got nothing back..."))
+                } else {
+                    messages.append(BuddyChatMessage(role: .assistant, content: response))
+                    BuddyStats.shared.recordBuddyChat()
+                }
             case .openai:
-                response = try await sendOpenAIResponses(system: systemPrompt, messages: recentMessages)
-            case .grok, .local:
-                response = try await sendChatCompletions(system: systemPrompt, messages: recentMessages)
-            }
-            if response.isEmpty {
-                messages.append(BuddyChatMessage(role: .assistant, content: "*tilts head* I got nothing back..."))
-            } else {
-                messages.append(BuddyChatMessage(role: .assistant, content: response))
+                try await streamOpenAIResponses(system: systemPrompt, messages: recentMessages)
                 BuddyStats.shared.recordBuddyChat()
+            case .grok, .local:
+                let response = try await sendChatCompletions(system: systemPrompt, messages: recentMessages)
+                if response.isEmpty {
+                    messages.append(BuddyChatMessage(role: .assistant, content: "*tilts head* I got nothing back..."))
+                } else {
+                    messages.append(BuddyChatMessage(role: .assistant, content: response))
+                    BuddyStats.shared.recordBuddyChat()
+                }
             }
         } catch {
             logger.error("Buddy chat failed: \(error.localizedDescription, privacy: .private)")
@@ -250,6 +256,79 @@ final class BuddyChatService: ObservableObject {
 
         let raw = String(data: data.prefix(500), encoding: .utf8) ?? "?"
         throw ChatError.httpError(200, "Unexpected response: \(raw.prefix(300))")
+    }
+
+    // MARK: - OpenAI Responses API (Streaming)
+
+    private func streamOpenAIResponses(system: String, messages: ArraySlice<BuddyChatMessage>) async throws {
+        var input: [[String: Any]] = [
+            ["role": "developer", "content": system]
+        ]
+        for msg in messages {
+            input.append(["role": msg.role.rawValue, "content": msg.content])
+        }
+
+        let body: [String: Any] = [
+            "model": model,
+            "input": input,
+            "stream": true
+        ]
+
+        var request = URLRequest(url: URL(string: endpoint)!)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 30
+
+        // Add placeholder message that we'll update as tokens arrive
+        let placeholderIndex = messages.endIndex
+        self.messages.append(BuddyChatMessage(role: .assistant, content: ""))
+        let msgIndex = self.messages.count - 1
+
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            self.messages[msgIndex].content = "*looks sad* (HTTP \(statusCode))"
+            return
+        }
+
+        var accumulated = ""
+
+        for try await line in bytes.lines {
+            // SSE format: "data: {...}" or "data: [DONE]"
+            guard line.hasPrefix("data: ") else { continue }
+            let payload = String(line.dropFirst(6))
+            guard payload != "[DONE]" else { break }
+
+            guard let eventData = payload.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: eventData) as? [String: Any]
+            else { continue }
+
+            let eventType = json["type"] as? String ?? ""
+
+            // Responses API streams "response.output_text.delta" events
+            if eventType == "response.output_text.delta",
+               let delta = json["delta"] as? String {
+                accumulated += delta
+                self.messages[msgIndex].content = accumulated
+            }
+
+            // Also handle chat-completions-style delta (fallback)
+            if eventType.isEmpty,
+               let choices = json["choices"] as? [[String: Any]],
+               let first = choices.first,
+               let delta = first["delta"] as? [String: Any],
+               let content = delta["content"] as? String {
+                accumulated += content
+                self.messages[msgIndex].content = accumulated
+            }
+        }
+
+        if accumulated.isEmpty {
+            self.messages[msgIndex].content = "*tilts head* I got nothing back..."
+        }
     }
 
     // MARK: - Generic OpenAI-Compatible Chat Completions (Grok, Local)
@@ -390,7 +469,7 @@ final class BuddyChatService: ObservableObject {
 struct BuddyChatMessage: Identifiable {
     let id = UUID()
     let role: Role
-    let content: String
+    var content: String
     let timestamp = Date()
 
     enum Role: String {
