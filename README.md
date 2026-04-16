@@ -63,7 +63,7 @@ It also replaces your system volume/brightness HUD, shows your calendar, plays m
 ### From Source
 
 ```bash
-git clone https://github.com/JOSH1059/Buddi.git
+git clone https://github.com/JOSH1059/Flick.git
 cd Buddi
 open buddi.xcodeproj
 ```
