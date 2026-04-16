@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the project maintainers via
-[GitHub issues](https://github.com/talkvalue/Buddi/issues) or by contacting a
+[GitHub issues](https://github.com/JOSH1059/Flick/issues) or by contacting a
 maintainer directly.
 
 All complaints will be reviewed and investigated promptly and fairly.

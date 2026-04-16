@@ -1,6 +1,6 @@
-# Contributing to Buddi
+# Contributing to Flick
 
-Thanks for your interest in contributing to Buddi! Please read through this guide before submitting issues or pull requests.
+Thanks for your interest in contributing to Flick! Please read through this guide before submitting issues or pull requests.
 
 ## Code of Conduct
 
@@ -8,7 +8,7 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## Issue Reporting
 
-- Search [existing issues](https://github.com/talkvalue/Buddi/issues) before creating a new one.
+- Search [existing issues](https://github.com/JOSH1059/Flick/issues) before creating a new one.
 - Use the provided issue templates (bug report or feature request).
 - For bugs, include your macOS version, device model (notch vs external display), and steps to reproduce.
 - Issues without clear reproduction steps may be closed after 7 days of inactivity.
@@ -25,9 +25,10 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 ### Development Setup
 
 1. **Requirements**: macOS 15.0+ (Sequoia), Xcode 16+
-2. Clone the repo: `git clone https://github.com/talkvalue/Buddi.git`
+2. Clone the repo: `git clone https://github.com/JOSH1059/Flick.git`
 3. Open `buddi.xcodeproj` in Xcode
-4. Build and run (Cmd+R)
+4. Set your signing team in Signing & Capabilities for both targets
+5. Build and run (Cmd+R)
 
 ### Commit Messages
 
@@ -43,4 +44,4 @@ AI-assisted contributions are welcome, but you are responsible for reviewing and
 
 ## Questions?
 
-Open a [discussion](https://github.com/talkvalue/Buddi/discussions) or ask in an issue -- we're happy to help.
+Open a [discussion](https://github.com/JOSH1059/Flick/discussions) or ask in an issue.

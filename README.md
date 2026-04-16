@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="flick_app_logo.png" width="128" alt="Flick">
+  <img src="assets/flick_app_logo.png" width="128" alt="Flick">
   <h1>Flick</h1>
   <p>A macOS notch companion with a living AI pet.</p>
 </div>
