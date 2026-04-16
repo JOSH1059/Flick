@@ -1,12 +1,12 @@
 name: Bug Report
-description: Report a bug in Buddi
+description: Report a bug in Flick
 labels: ['type: bug', 'status: needs triage']
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug! Please search [existing issues](https://github.com/talkvalue/Buddi/issues) first.
+        Thanks for reporting a bug! Please search [existing issues](https://github.com/JOSH1059/Flick/issues) first.
 
   - type: textarea
     id: description
@@ -23,7 +23,7 @@ body:
       label: Steps to reproduce
       description: Steps to reproduce the behavior.
       placeholder: |
-        1. Open Buddi
+        1. Open Flick
         2. Click on '...'
         3. See error
     validations:
@@ -60,7 +60,7 @@ body:
   - type: input
     id: buddi-version
     attributes:
-      label: Buddi version
+      label: Flick version
       placeholder: "e.g. 0.1.0"
     validations:
       required: true
