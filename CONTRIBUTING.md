@@ -38,10 +38,6 @@ Use clear, descriptive commit messages:
 - `feat: add keyboard shortcut for shelf toggle`
 - `docs: update installation instructions`
 
-## AI Tool Policy
-
-AI-assisted contributions are welcome, but you are responsible for reviewing and testing all generated code before submitting. PRs that appear to be unreviewed AI output will be closed with the `ai-slop` label.
-
 ## Questions?
 
 Open a [discussion](https://github.com/JOSH1059/Flick/discussions) or ask in an issue.
