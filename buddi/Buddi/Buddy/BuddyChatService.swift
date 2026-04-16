@@ -183,7 +183,8 @@ final class BuddyChatService: ObservableObject {
             "messages": apiMessages
         ]
 
-        var request = URLRequest(url: URL(string: endpoint)!)
+        guard let url = URL(string: endpoint) else { throw ChatError.invalidResponse }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -219,7 +220,8 @@ final class BuddyChatService: ObservableObject {
             "input": input
         ]
 
-        var request = URLRequest(url: URL(string: endpoint)!)
+        guard let url = URL(string: endpoint) else { throw ChatError.invalidResponse }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -274,15 +276,15 @@ final class BuddyChatService: ObservableObject {
             "stream": true
         ]
 
-        var request = URLRequest(url: URL(string: endpoint)!)
+        guard let url = URL(string: endpoint) else { throw ChatError.invalidResponse }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         request.timeoutInterval = 30
 
-        // Add placeholder message that we'll update as tokens arrive
-        let placeholderIndex = messages.endIndex
+        // Add placeholder message that we'll update as tokens stream in
         self.messages.append(BuddyChatMessage(role: .assistant, content: ""))
         let msgIndex = self.messages.count - 1
 
@@ -290,6 +292,7 @@ final class BuddyChatService: ObservableObject {
 
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard msgIndex < self.messages.count else { return }
             self.messages[msgIndex].content = "*looks sad* (HTTP \(statusCode))"
             return
         }
@@ -297,7 +300,6 @@ final class BuddyChatService: ObservableObject {
         var accumulated = ""
 
         for try await line in bytes.lines {
-            // SSE format: "data: {...}" or "data: [DONE]"
             guard line.hasPrefix("data: ") else { continue }
             let payload = String(line.dropFirst(6))
             guard payload != "[DONE]" else { break }
@@ -308,24 +310,27 @@ final class BuddyChatService: ObservableObject {
 
             let eventType = json["type"] as? String ?? ""
 
-            // Responses API streams "response.output_text.delta" events
+            // Responses API: "response.output_text.delta"
             if eventType == "response.output_text.delta",
                let delta = json["delta"] as? String {
                 accumulated += delta
+                guard msgIndex < self.messages.count else { continue }
                 self.messages[msgIndex].content = accumulated
             }
 
-            // Also handle chat-completions-style delta (fallback)
+            // Chat Completions fallback
             if eventType.isEmpty,
                let choices = json["choices"] as? [[String: Any]],
                let first = choices.first,
                let delta = first["delta"] as? [String: Any],
                let content = delta["content"] as? String {
                 accumulated += content
+                guard msgIndex < self.messages.count else { continue }
                 self.messages[msgIndex].content = accumulated
             }
         }
 
+        guard msgIndex < self.messages.count else { return }
         if accumulated.isEmpty {
             self.messages[msgIndex].content = "*tilts head* I got nothing back..."
         }
@@ -347,7 +352,8 @@ final class BuddyChatService: ObservableObject {
             "messages": apiMessages
         ]
 
-        var request = URLRequest(url: URL(string: endpoint)!)
+        guard let url = URL(string: endpoint) else { throw ChatError.invalidResponse }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

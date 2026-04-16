@@ -37,9 +37,9 @@ final class BuddyStats: ObservableObject {
 
     var xpProgress: Double {
         let needed = Self.xpForLevel(data.level + 1) - Self.xpForLevel(data.level)
-        let current = data.totalXP - Self.xpForLevel(data.level)
+        let current = max(0, data.totalXP - Self.xpForLevel(data.level))
         guard needed > 0 else { return 0 }
-        return Double(current) / Double(needed)
+        return min(1.0, Double(current) / Double(needed))
     }
 
     // MARK: - Affection
